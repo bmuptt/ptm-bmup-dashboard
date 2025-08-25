@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  project_fe_erp:
+    container_name: project_fe_erp
+    restart: always
+    build:
+      context: .
+      dockerfile: docker/vue/Dockerfile
+      args:
+        VITE_APP_BACKEND_URL: ${VITE_APP_BACKEND_URL}
+        VITE_APP_BACKEND_URL_MASTER: ${VITE_APP_BACKEND_URL_MASTER}
+  
+  fe_erp_nginx:
+    container_name: fe_erp_nginx
+    restart: always
+    environment:
+      - VITE_APP_BACKEND_URL=${VITE_APP_BACKEND_URL}
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - "3100:80"
+    depends_on:
+      - project_fe_erp
