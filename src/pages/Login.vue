@@ -9,7 +9,7 @@
           class="pos-relative background-no-repeat background-position-center background-size-cover"
           :style="{
             height: '100vh',
-            backgroundImage: 'url(./static/img/elinda-furniture.png)',
+            backgroundImage: 'url(./static/img/logo.png)',
           }"
         />
       </v-col>
@@ -21,7 +21,7 @@
         :style="{
           paddingTop: '25vh',
           height: '100vh',
-          backgroundImage: `url(/static/img/elinda-furniture.png)`,
+          backgroundImage: `url(/static/img/logo.png)`,
         }"
       >
         <div class="pa-4 rounded-lg elevation-6 bg-white">

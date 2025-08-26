@@ -4,6 +4,7 @@
     <v-navigation-drawer
       v-model="drawer"
       app
+      :temporary="$vuetify.display.smAndDown"
     >
       <v-sheet
         color="grey-lighten-4"
@@ -99,9 +100,11 @@
       dark
       app
     >
-      <v-app-bar-nav-icon @click="drawer = !drawer" />
+      <v-app-bar-nav-icon 
+        @click="drawer = !drawer"
+      />
 
-      <v-toolbar-title>Elinda Furniture</v-toolbar-title>
+      <v-toolbar-title>PTM BMUP</v-toolbar-title>
 
       <v-spacer />
 
@@ -132,7 +135,7 @@ import RecursiveMenu from './RecursiveMenu.vue';
 
 const store = useAppStore();
 const swal = inject<typeof Swal>('$swal');
-const router = useRouter()
+const router = useRouter();
 
 if (!swal) {
   throw new Error('Swal instance is not provided!');
@@ -142,9 +145,46 @@ if (!swal) {
 const { loading, resultLoading } = useLoading();
 
 // data
-const drawer = ref(true);
+const drawer = ref(true); // Start open by default for desktop
 const dataProfile = ref<IResProfile | null>(null);
 const keyMenu = ref(0);
+
+// Responsive drawer logic using Vuetify breakpoints
+const isDesktop = computed(() => {
+  // Use window.innerWidth directly with Vuetify breakpoint values
+  return window.innerWidth >= 1280; // lg breakpoint
+});
+
+watch(isDesktop, (newValue) => {
+  if (newValue) {
+    // On desktop (lg and up - 1280px+), keep drawer open by default
+    drawer.value = true;
+  } else {
+    // On mobile/tablet (below 1280px), close drawer
+    drawer.value = false;
+  }
+}, { immediate: true });
+
+// Add window resize listener
+const handleResize = () => {
+  // This will trigger the watcher when window resizes
+  const newIsDesktop = window.innerWidth >= 1280;
+  if (newIsDesktop !== isDesktop.value) {
+    if (newIsDesktop) {
+      drawer.value = true;
+    } else {
+      drawer.value = false;
+    }
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
 
 const stringAvatar = computed(() => {
   let tempAvatar = null;

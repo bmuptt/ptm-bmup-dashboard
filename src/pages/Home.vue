@@ -1,3 +1,3 @@
 <template>
-  <h2>Welcome ERP Elinda Furniture</h2>
+  <h2>Welcome Dashboard PTM BMUP</h2>
 </template>

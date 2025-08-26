@@ -22,4 +22,8 @@ export interface IResponseMenu extends IDefaultResponse, IRequestMenu {
     active: string;
     order_number: number;
     children: IResponseMenu[];
+    key_menu: string;
+    name: string;
+    url?: string | null;
+    menu_id?: number | null;
 }

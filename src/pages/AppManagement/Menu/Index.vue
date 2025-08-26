@@ -213,6 +213,7 @@
         v-if="statusDialogStructureMenu"
         :key="keyStructure"
         :structure-menu="structureMenu"
+        :loading="structureMenuLoading"
         @close-dialog="statusDialogStructureMenu = false"
       />
     </v-dialog>
@@ -239,6 +240,9 @@ const permission = ref<IResPermission | null>(null);
 
 // loading
 const { loading, resultLoading } = useLoadingComponent();
+
+// Add structureMenu loading state
+const structureMenuLoading = ref(false);
 
 // table
 const items = ref([]);
@@ -270,15 +274,15 @@ const fetchPermission = () => {
 };
 
 const fetchStructureMenu = () => {
-  loading.structureMenu = true
+  structureMenuLoading.value = true
 
   structure()
     .then(({ data }) => {
       keyStructure.value++;
-      structureMenu.value = data;
+      structureMenu.value = data.data || data;
     })
     .catch(() => {})
-    .finally(() => loading.structureMenu = false);
+    .finally(() => structureMenuLoading.value = false);
 };
 
 const closeDialogHeader = () => {

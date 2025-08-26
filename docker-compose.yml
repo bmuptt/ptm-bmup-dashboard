@@ -1,8 +1,8 @@
 version: '3.8'
 
 services:
-  project_fe_erp:
-    container_name: project_fe_erp
+  ptm_bmup_dashboard:
+    container_name: ptm_bmup_dashboard
     restart: always
     build:
       context: .
@@ -11,15 +11,13 @@ services:
         VITE_APP_BACKEND_URL: ${VITE_APP_BACKEND_URL}
         VITE_APP_BACKEND_URL_MASTER: ${VITE_APP_BACKEND_URL_MASTER}
   
-  fe_erp_nginx:
-    container_name: fe_erp_nginx
+  ptm_bmup_dashboard_nginx:
+    container_name: ptm_bmup_dashboard_nginx
     restart: always
-    environment:
-      - VITE_APP_BACKEND_URL=${VITE_APP_BACKEND_URL}
     build:
       context: .
       dockerfile: docker/nginx/Dockerfile
     ports:
       - "3100:80"
     depends_on:
-      - project_fe_erp
+      - ptm_bmup_dashboard

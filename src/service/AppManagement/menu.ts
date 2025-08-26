@@ -28,7 +28,7 @@ export function listHeader(id: number, params: IDefaultParams) {
 
 export function structure() {
   return api({
-    url: `${basePath}-structure`,
+    url: `${basePath}/structure`,
     method: 'GET',
   });
 }

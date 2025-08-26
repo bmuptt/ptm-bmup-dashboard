@@ -21,9 +21,9 @@ export function useAttributeDialogConfirm({
     html,
     showDenyButton: true,
     confirmButtonText,
-    confirmButtonColor: '#1867c0',
+    confirmButtonColor: '#f86f24',
     denyButtonText: `Cancel`,
-    denyButtonColor: '#1867c0',
+    denyButtonColor: '#f86f24',
     reverseButtons: true,
     width,
   };

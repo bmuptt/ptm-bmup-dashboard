@@ -9,7 +9,6 @@ declare module 'vue' {
   export interface GlobalComponents {
     DatePicker: typeof import('./components/common/DatePicker.vue')['default']
     DialogAddMenu: typeof import('./components/UI/AppManagement/Menu/DialogAddMenu.vue')['default']
-    DialogFormBranch: typeof import('./components/UI/Master/Branch/DialogFormBranch.vue')['default']
     DialogFormHeader: typeof import('./components/UI/AppManagement/Menu/DialogFormHeader.vue')['default']
     DialogFormMenu: typeof import('./components/UI/AppManagement/Menu/DialogFormMenu.vue')['default']
     DialogFormRole: typeof import('./components/UI/AppManagement/Role/DialogFormRole.vue')['default']

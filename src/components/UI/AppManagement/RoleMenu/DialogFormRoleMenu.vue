@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <v-card>
     <div class="pa-6 bg-white">
@@ -34,49 +35,91 @@
             </v-btn>
           </v-col>
         </v-row>
-
-        <v-row
-          v-if="state !== null && state.length > 0"
-          class="mt-2"
-        >
-          <v-col
-            cols="12"
-          >
-            <v-treeview
-              :items="state"
-              item-value="id"
-              open-all
+        
+        <v-row class="mt-4">
+          <v-col cols="12">
+            <v-card
+              variant="outlined"
+              class="pa-4"
             >
-              <template #prepend="{ item }">
-                {{ item.active === 'Active' ? item.name : `${item.name} (Inactive)` }}
-              </template>
-              <template #append="{ item }">
-                <v-checkbox
-                  v-model="item.permissions.access"
-                  class="ml-2"
-                  color="primary"
-                  label="Access"
-                />
-                <v-checkbox
-                  v-model="item.permissions.create"
-                  class="ml-2"
-                  color="primary"
-                  label="Create"
-                />
-                <v-checkbox
-                  v-model="item.permissions.update"
-                  class="ml-2"
-                  color="primary"
-                  label="Update"
-                />
-                <v-checkbox
-                  v-model="item.permissions.delete"
-                  class="ml-2"
-                  color="primary"
-                  label="Delete"
-                />
-              </template>
-            </v-treeview>
+              <v-table v-if="state !== null && state.length > 0">
+                <thead>
+                  <tr>
+                    <th class="text-left">
+                      Menu
+                    </th>
+                    <th class="text-left">
+                      Access
+                    </th>
+                    <th class="text-left">
+                      Create
+                    </th>
+                    <th class="text-left">
+                      Update
+                    </th>
+                    <th class="text-left">
+                      Delete
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="item in flattenedItems"
+                    :key="item.id"
+                    :class="{ 'child-row': item.level > 0 }"
+                  >
+                    <td>
+                      <div class="d-flex align-center">
+                        <div 
+                          v-if="item.level > 0" 
+                          class="ml-4"
+                          v-html="item.indent"
+                        />
+                        <span
+                          v-if="item.level > 0"
+                          class="mr-1"
+                        >{{ item.prefix }}</span>
+                        <span :class="item.level === 0 ? 'font-weight-medium' : 'text-body-2'">
+                          {{ item.active === 'Active' ? item.name : `${item.name} (Inactive)` }}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="text-left">
+                      <v-checkbox
+                        v-model="item.permissions.access"
+                        color="primary"
+                        hide-details
+                        density="compact"
+                      />
+                    </td>
+                    <td class="text-left">
+                      <v-checkbox
+                        v-model="item.permissions.create"
+                        color="primary"
+                        hide-details
+                        density="compact"
+                      />
+                    </td>
+                    <td class="text-left">
+                      <v-checkbox
+                        v-model="item.permissions.update"
+                        color="primary"
+                        hide-details
+                        density="compact"
+                      />
+                    </td>
+                    <td class="text-left">
+                      <v-checkbox
+                        v-model="item.permissions.delete"
+                        color="primary"
+                        hide-details
+                        density="compact"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
+            </v-card>
           </v-col>
         </v-row>
       </v-form>
@@ -104,6 +147,31 @@ const { loading, resultLoading } = useLoadingForm();
 
 // data
 const state = ref<IResponseRoleMenu[] | null>(null);
+
+// Flatten tree for table display
+const flattenedItems = computed(() => {
+  if (!state.value) return [];
+  
+  const result: Array<IResponseRoleMenu & { level: number; indent: string; prefix: string }> = [];
+  
+  const flatten = (items: IResponseRoleMenu[], level: number = 0) => {
+    items.forEach(item => {
+      result.push({
+        ...item,
+        level,
+        indent: '&nbsp;'.repeat(level * 4),
+        prefix: level > 0 ? '└─ ' : ''
+      });
+      
+      if (item.children && item.children.length > 0) {
+        flatten(item.children, level + 1);
+      }
+    });
+  };
+  
+  flatten(state.value);
+  return result;
+});
 
 function flattenMenuTree(tree: IResTreeMenu[]): IRequestRoleMenu[] {
   const result: IRequestRoleMenu[] = [];
