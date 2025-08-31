@@ -1,0 +1,6 @@
+services:
+  ptm_bmup_dashboard:
+    restart: "no"
+
+  ptm_bmup_dashboard_nginx:
+    restart: "no"

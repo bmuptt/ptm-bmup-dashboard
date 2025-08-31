@@ -96,7 +96,7 @@
 
     <!--Toolbar-->
     <v-app-bar
-      color="primary"
+      :color="appBarColor"
       dark
       app
     >
@@ -104,7 +104,7 @@
         @click="drawer = !drawer"
       />
 
-      <v-toolbar-title>PTM BMUP</v-toolbar-title>
+      <v-toolbar-title>{{ appBarTitle }}</v-toolbar-title>
 
       <v-spacer />
 
@@ -127,15 +127,22 @@
 <script lang="ts" setup>
 import type { IResProfile } from '@/model/auth-interface';
 import { logout, profile } from '@/service/auth';
+import { getCoreSetting } from '@/service/Setting/core';
 import { useAppStore } from '@/stores/app';
 import { useAttributeDialogConfirm } from '@/utils/attribute-dialog-confirm';
 import { useLoading } from '@/utils/loading';
 import Swal from 'sweetalert2';
 import RecursiveMenu from './RecursiveMenu.vue';
+// import { useTheme } from '@/composables/useTheme'; // Commented out since we're using direct refs now
 
 const store = useAppStore();
 const swal = inject<typeof Swal>('$swal');
 const router = useRouter();
+// const { appName, primaryColor } = useTheme(); // Commented out since we're using direct refs now
+
+// Create reactive refs for app bar
+const appBarTitle = ref('-');
+const appBarColor = ref('primary');
 
 if (!swal) {
   throw new Error('Swal instance is not provided!');
@@ -216,6 +223,18 @@ watch(
   { deep: true }
 );
 
+// Watch for core setting changes
+watch(
+  () => store.coreSetting,
+  (newV) => {
+    if (newV) {
+      appBarTitle.value = newV.name || '-';
+      appBarColor.value = newV.primary_color || 'primary';
+    }
+  },
+  { deep: true }
+);
+
 const submitLogout = () => {
   const data = {
     title: 'Logout',
@@ -239,8 +258,26 @@ const submitLogout = () => {
   });
 };
 
+const fetchCoreSetting = () => {
+  loading.dataCore = true;
+   
+  getCoreSetting()
+    .then(({ data }) => {
+      store.addCoreSetting(data.data);
+      appBarTitle.value = data.data.name || '-';
+      appBarColor.value = data.data.primary_color || 'primary';
+    })
+    .catch((error) => {
+      console.error('Error fetching core setting:', error);
+    })
+    .finally(() => {
+      loading.dataCore = false;
+    });
+};
+
 const fetchData = () => {
   loading.data = true;
+   
   profile()
     .then(({ data }) => {
       store.addProfileGlobal(data);
@@ -249,5 +286,6 @@ const fetchData = () => {
     .finally(() => (loading.data = false));
 };
 
+fetchCoreSetting();
 fetchData();
 </script>

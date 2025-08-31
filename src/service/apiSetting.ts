@@ -5,7 +5,7 @@ import { createPinia } from 'pinia';
 import { useAppStore } from '@/stores/app';
 import router from '@/router';
 
-const baseUrl = import.meta.env.VITE_APP_BACKEND_URL_MASTER;
+const baseUrl = import.meta.env.VITE_APP_BACKEND_URL_SETTING;
 const pinia = createPinia();
 const store = useAppStore(pinia);
 

@@ -1,0 +1,6 @@
+services:
+  ptm_bmup_dashboard:
+    restart: always
+
+  ptm_bmup_dashboard_nginx:
+    restart: always

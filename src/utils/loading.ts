@@ -3,6 +3,7 @@ import { reactive, computed } from 'vue';
 export function useLoading() {
   const dataLoading = {
     data: false,
+    dataCore: false,
     submit: false,
   };
 

@@ -4,7 +4,7 @@
 interface Window {
     __ENV__?: {
         VITE_APP_BACKEND_URL?: string;
-        VITE_APP_BACKEND_URL_MASTER?: string;
+        VITE_APP_BACKEND_URL_SETTING?: string;
     };
 }
   
