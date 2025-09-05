@@ -7,4 +7,12 @@ interface Window {
         VITE_APP_BACKEND_URL_SETTING?: string;
     };
 }
+
+interface ImportMetaEnv {
+    readonly VITE_TINYMCE_API_KEY: string;
+}
+
+interface ImportMeta {
+    readonly env: ImportMetaEnv;
+}
   

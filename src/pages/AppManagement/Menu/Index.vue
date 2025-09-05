@@ -143,6 +143,14 @@
                         >
                           <v-list-item-title>Change Parent</v-list-item-title>
                         </v-list-item>
+                        <v-list-item
+                          v-if="permission?.delete && element.children.length === 0"
+                          link
+                          data-testid="hard-delete-button"
+                          @click="submitHardDelete(element.id)"
+                        >
+                          <v-list-item-title>Hard Delete</v-list-item-title>
+                        </v-list-item>
                       </v-list>
                     </v-menu>
                   </td>
@@ -217,24 +225,38 @@
         @close-dialog="statusDialogStructureMenu = false"
       />
     </v-dialog>
+
+    <confirm-dialog
+      v-model="showDialog"
+      :title="dialogOptions.title"
+      :html="dialogOptions.html"
+      :confirm-button-text="dialogOptions.confirmButtonText"
+      :cancel-button-text="dialogOptions.cancelButtonText"
+      :confirm-button-color="dialogOptions.confirmButtonColor"
+      :icon="dialogOptions.icon"
+      @confirm="handleConfirm"
+      @cancel="handleCancel"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import type { IResPermission } from '@/model/auth-interface';
-import { activeMenu, deleteData, list, sort, structure } from '@/service/AppManagement/menu';
+import { activeMenu, deleteData, list, sort, structure, hardDeleteMenu } from '@/service/AppManagement/menu';
 import { getPermission } from '@/service/auth';
 import { useLoadingComponent } from '@/utils/loading';
 import draggable from 'vuedraggable';
 import DialogAdd from '@/components/UI/AppManagement/Menu/DialogAddMenu.vue';
 import type { IResponseMenu } from '@/model/menu-interface';
 import DialogForm from '@/components/UI/AppManagement/Menu/DialogFormMenu.vue';
-import { useAttributeDialogConfirm } from '@/utils/attribute-dialog-confirm';
 import DialogHeader from '@/components/UI/AppManagement/Menu/DialogFormHeader.vue';
 import DialogStructureMenu from '@/components/UI/AppManagement/Menu/DialogStructureMenu.vue';
 import { getProfile } from '@/utils/tools';
+import { useConfirmDialog } from '@/utils/confirm-dialog';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 
 const swal = inject('$swal') as typeof import('sweetalert2').default;
+const { showDialog, dialogOptions, showConfirm, handleConfirm, handleCancel } = useConfirmDialog();
 const route = useRoute();
 const permission = ref<IResPermission | null>(null);
 
@@ -305,51 +327,73 @@ const openDialogForm = (item = null) => {
   statusDialogForm.value = true;
 };
 
-const submitActive = (id: number) => {
-  const data = {
+const submitActive = async (id: number) => {
+  const confirmed = await showConfirm({
     title: 'Active Menu',
-    html: `Are you sure you want to active this data?`,
+    html: 'Are you sure you want to active this data?',
     confirmButtonText: 'Yes',
-  };
-
-  swal.fire(useAttributeDialogConfirm(data)).then((result) => {
-    if (result.isConfirmed) {
-      loading.submit = true;
-
-      activeMenu(id)
-        .then(({ data }) => {
-          swal.fire('Success', data.message, 'success');
-          fetchData();
-        })
-        .catch(() => {})
-        .finally(() => (loading.submit = false));
-    }
+    icon: 'question'
   });
+
+  if (confirmed) {
+    loading.submit = true;
+
+    activeMenu(id)
+      .then(({ data }) => {
+        swal.fire('Success', data.message, 'success');
+        fetchData();
+      })
+      .catch(() => {})
+      .finally(() => (loading.submit = false));
+  }
 };
 
-const submitDelete = (id: number) => {
-  const data = {
+const submitDelete = async (id: number) => {
+  const confirmed = await showConfirm({
     title: 'Delete Data',
-    html: `Are you sure you want to delete this data?`,
+    html: 'Are you sure you want to delete this data?',
     confirmButtonText: 'Yes',
-  };
-
-  swal.fire(useAttributeDialogConfirm(data)).then((result) => {
-    if (result.isConfirmed) {
-      loading.submit = true;
-
-      deleteData(id)
-        .then(({ data }) => {
-          swal.fire('Success', data.message, 'success');
-          return getProfile();
-        })
-        .then(() => {
-          fetchData();
-        })
-        .catch(() => {})
-        .finally(() => (loading.submit = false));
-    }
+    icon: 'warning'
   });
+
+  if (confirmed) {
+    loading.submit = true;
+
+    deleteData(id)
+      .then(({ data }) => {
+        swal.fire('Success', data.message, 'success');
+        return getProfile();
+      })
+      .then(() => {
+        fetchData();
+      })
+      .catch(() => {})
+      .finally(() => (loading.submit = false));
+  }
+};
+
+const submitHardDelete = async (id: number) => {
+  const confirmed = await showConfirm({
+    title: 'Hard Delete Data',
+    html: 'Are you sure you want to hard delete this data? This action cannot be undone.',
+    confirmButtonText: 'Yes',
+    icon: 'error'
+  });
+
+  if (confirmed) {
+    loading.submit = true;
+
+    hardDeleteMenu(id)
+      .then(({ data }) => {
+        swal.fire('Success', data.message, 'success');
+        return getProfile();
+      })
+      .then(() => {
+        fetchData();
+      })
+      .catch(() => {})
+      .finally(() => (loading.submit = false));
+  }
 };
 
 const updateSort = () => {

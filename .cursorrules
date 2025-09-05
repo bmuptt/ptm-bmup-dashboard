@@ -1,0 +1,251 @@
+# Cursor AI Development Rules
+
+## 🚫 TIDAK BOLEH
+- Jangan running aplikasi karena saya udah run aplikasinya, cukup run unit testnya, kalau ada error di fix
+- Jangan gunakan async/await untuk API calls
+- Jangan buat file yang terlalu besar dan kompleks
+- Jangan skip unit testing
+- Jangan import Vue dan Vue Router (sudah auto import)
+- Jangan pakai tipe data `any` sebisa mungkin
+- Jangan buat interface di component tapi di `src/model`
+
+## ✅ HARUS DILAKUKAN
+- Buat unit test untuk test flow saja jika ada perubahan, jalankan testnya, kalau ada error di fix
+- Gunakan Promise pattern untuk semua API calls
+- Gunakan loading dari src/utils/loading.ts dengan resultLoading
+- Buat file terpisah untuk setiap komponen/service
+- Test UI Component dengan unit test
+- Untuk catch error cukup console.error saja (sudah ditangani config API)
+- Pattern banyak file spesifik untuk maintenance dan debug yang mudah
+- Cek apakah component atau file js yang di rubah punya unit test? kalau belum dapat dibuat unit testnya? kalau belum dan bisa tolong dibuat unit testnya agar memastikan script berjalan lancar
+- Hindari pakai tipe data `any` sebisa mungkin
+- Jangan buat interface di component tapi di `src/model`
+- Kalau ada call API tolong pakai promise jangan pakai async await. untuk bagian catch cukup console.error saja karena sudah di tangani config api
+- Loading pakai `src/utils/loading.ts`. untuk result loadingnya pakai resultLoading di halaman htmlnya. tolong pelajari dari file lain
+- Import vue dan vue-router tidak perlu karena sudah ada auto import
+
+## 📁 Pattern File Structure
+- **Service**: Satu file per service (menu.ts, user.ts, role.ts)
+- **Mock**: Satu file per mock data (menu-mock.ts, user-mock.ts)
+- **Test Components**: 
+  - `src/test/components/UI/` - Test untuk UI components (AppManagement, dll) dan pisahkan dengan folder spesifik, src\components\UI masuknya di test ini juga
+  - `src/test/components/common/` - Test untuk common components
+- **Test Utils**: `src/test/utils/` - Test untuk custom library/utilities
+- **Utils**: Satu file per utility function
+- **Interfaces**: Satu file per model/interface di `src/model`
+
+## 🔄 Development Workflow
+1. **Buat Service Function** dengan Promise pattern
+2. **Buat Mock Data** untuk testing
+3. **Buat Unit Test** untuk test flow saja jika ada perubahan
+4. **Jalankan Test**, fix error sampai pass
+5. **Integrasi ke UI** dengan loading dari utils/loading.ts
+6. **Test UI Component** dengan unit test
+7. **Commit** jika semua test pass
+
+## 💻 Contoh Promise Pattern
+
+### ✅ BENAR - Promise Pattern
+```typescript
+export function getData() {
+  return api.get('/endpoint')
+    .then(({ data }) => {
+      // handle success
+      return data;
+    })
+    .catch((error) => {
+      // handle error - cukup console.error saja
+      console.error(error);
+      throw error;
+    });
+}
+
+export function createData(payload) {
+  return api.post('/endpoint', payload)
+    .then(({ data }) => data)
+    .catch((error) => { 
+      console.error(error);
+      throw error; 
+    });
+}
+```
+
+### ❌ SALAH - Async/Await
+```typescript
+async function getData() {
+  try {
+    const { data } = await api.get('/endpoint');
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+```
+
+## 📊 Loading Pattern
+
+### Import Loading Utils
+```typescript
+import { useLoading } from '@/utils/loading';
+
+const { loading, resultLoading } = useLoading();
+```
+
+### Gunakan di Template
+```vue
+<template>
+  <v-btn :loading="resultLoading" @click="submitData">
+    Submit
+  </v-btn>
+  
+  <v-table v-if="!resultLoading">
+    <!-- table content -->
+  </v-table>
+</template>
+```
+
+### Loading State Management
+```typescript
+const submitData = () => {
+  loading.submit = true;
+  
+  createData(payload)
+    .then((data) => {
+      // handle success
+    })
+    .catch((error) => {
+      // handle error
+    })
+    .finally(() => {
+      loading.submit = false;
+    });
+};
+```
+
+## 🧪 Testing Pattern
+
+### Mock Data Structure
+```typescript
+// src/test/unit/mock/menu-mock.ts
+export const responseSuccess = {
+  data: { message: 'Success' },
+  status: 200,
+  statusText: 'OK'
+};
+
+export const responseError = {
+  response: {
+    data: { message: 'Error occurred' },
+    status: 400
+  }
+};
+```
+
+### Unit Test Structure
+```typescript
+// src/test/components/UI/AppManagement/MenuIndex.spec.ts
+import { describe, test, expect, vi, afterEach } from 'vitest';
+import { hardDeleteMenu } from '@/service/AppManagement/menu';
+import { responseSuccess, responseError } from '../../mock/menu-mock';
+
+vi.mock('@/service/AppManagement/menu', () => ({
+  hardDeleteMenu: vi.fn(),
+}));
+
+describe('Menu Service', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test('should call service successfully', async () => {
+    vi.mocked(hardDeleteMenu).mockResolvedValue(responseSuccess);
+    const result = await hardDeleteMenu(1);
+    expect(result.data.message).toBe('Success');
+  });
+
+  test('should handle error gracefully', async () => {
+    vi.mocked(hardDeleteMenu).mockRejectedValue(responseError);
+    await expect(hardDeleteMenu(1)).rejects.toEqual(responseError);
+  });
+});
+```
+
+### Component Test Structure
+```typescript
+// src/test/components/common/ConfirmDialog.spec.ts
+import { describe, test, expect, vi, afterEach } from 'vitest';
+import { mount } from '@vue/test-utils';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
+
+describe('ConfirmDialog Component', () => {
+  test('should render component correctly', () => {
+    const wrapper = mount(ConfirmDialog, {
+      props: {
+        modelValue: false,
+        title: 'Test Title',
+        html: 'Test content',
+      },
+    });
+    expect(wrapper.find('[data-testid="dialog"]').exists()).toBe(true);
+  });
+});
+```
+
+## 📋 Checklist Setiap Perubahan
+
+- [ ] Service function menggunakan Promise pattern
+- [ ] Mock data dibuat untuk testing
+- [ ] Unit test dibuat dan pass
+- [ ] Loading menggunakan `src/utils/loading.ts`
+- [ ] UI menggunakan `resultLoading`
+- [ ] Semua test pass sebelum commit
+- [ ] File structure mengikuti pattern yang ditentukan
+- [ ] Hindari tipe data `any` sebisa mungkin
+- [ ] Interface dibuat di `src/model` bukan di component
+- [ ] Cek apakah component/file yang diubah punya unit test
+
+## 🎯 Prioritas Development
+
+1. **Service Layer** - Business logic dengan Promise pattern
+2. **Mock Data** - Data realistic untuk testing
+3. **Unit Tests** - Test flow saja jika ada perubahan
+4. **UI Integration** - Loading dan error handling
+5. **Component Tests** - Test UI components dengan unit test
+6. **Documentation** - Update docs jika diperlukan
+
+## 🔧 Common Commands
+
+```bash
+# Run specific test file
+npx vitest run src/test/components/UI/AppManagement/MenuIndex.spec.ts
+
+# Run all component tests
+npx vitest run src/test/components/
+
+# Run all tests
+npx vitest run
+
+# Run tests in watch mode
+npx vitest
+```
+
+## 📚 File References
+
+- **Loading Utils**: `src/utils/loading.ts`
+- **API Utils**: `src/service/api.ts`
+- **Test Config**: `vitest.config.ts`
+- **Package Scripts**: `package.json` scripts section
+
+## ⚠️ Important Notes
+
+- Selalu jalankan unit test setelah perubahan
+- Pastikan tidak ada breaking changes
+- Gunakan descriptive names untuk functions dan variables
+- Keep functions small and focused
+- Document complex business logic
+- **Catch error cukup console.error saja (sudah ditangani config API)**
+- **Test flow saja jika ada perubahan**
+- **Hindari tipe data `any` sebisa mungkin**
+- **Interface dibuat di `src/model` bukan di component**
+- **Loading pakai `src/utils/loading.ts` dengan `resultLoading`**
+- **Import vue dan vue-router tidak perlu karena sudah ada auto import**

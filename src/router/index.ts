@@ -17,6 +17,16 @@ const router = createRouter({
       component: LayoutDefault,
       children: routes,
     },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notFound',
+      meta: {
+        isAuth: false,
+        isGlobal: true,
+        coreSystem: 'NoCore',
+      },
+      component: () => import('@/views/NotFound.vue'),
+    },
   ],
 });
 

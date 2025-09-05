@@ -29,7 +29,7 @@
             <form-data
               :id="selectData?.id"
               @refresh-page="moduleRefreshPage"
-              @change-loading="(data) => loading.submit = data"
+              @change-loading="(data: boolean) => loading.submit = data"
             />
           </div>
         </v-col>

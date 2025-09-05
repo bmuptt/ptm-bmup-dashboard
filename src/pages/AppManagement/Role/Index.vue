@@ -110,6 +110,18 @@
         @refresh-page="refreshPage"
       />
     </v-dialog>
+
+    <confirm-dialog
+      v-model="showDialog"
+      :title="dialogOptions.title"
+      :html="dialogOptions.html"
+      :confirm-button-text="dialogOptions.confirmButtonText"
+      :cancel-button-text="dialogOptions.cancelButtonText"
+      :confirm-button-color="dialogOptions.confirmButtonColor"
+      :icon="dialogOptions.icon"
+      @confirm="handleConfirm"
+      @cancel="handleCancel"
+    />
   </div>
 </template>
 
@@ -121,12 +133,14 @@ import { useDisplay } from 'vuetify';
 import DialogForm from '@/components/UI/AppManagement/Role/DialogFormRole.vue';
 import type { IDefaultParams } from '@/model/utils-interface';
 import { useTable } from '@/utils/appmanagement/role/list';
-import { useAttributeDialogConfirm } from '@/utils/attribute-dialog-confirm';
 import type { IResPermission } from '@/model/auth-interface';
 import { getPermission } from '@/service/auth';
 import { getProfile } from '@/utils/tools';
+import { useConfirmDialog } from '@/utils/confirm-dialog';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 
 const swal = inject('$swal') as typeof import('sweetalert2').default;
+const { showDialog, dialogOptions, showConfirm, handleConfirm, handleCancel } = useConfirmDialog();
 const route = useRoute();
 const { smAndDown, mdAndUp } = useDisplay();
 const permission = ref<IResPermission | null>(null);
@@ -175,29 +189,28 @@ const fetchPermission = () => {
     .finally(() => (loading.permission = false));
 };
 
-const submitDelete = (id: number) => {
-  const data = {
+const submitDelete = async (id: number) => {
+  const confirmed = await showConfirm({
     title: 'Delete Data',
-    html: `Are you sure you want to delete this data?`,
+    html: 'Are you sure you want to delete this data?',
     confirmButtonText: 'Yes',
-  };
-
-  swal.fire(useAttributeDialogConfirm(data)).then((result) => {
-    if (result.isConfirmed) {
-      loading.submit = true;
-
-      deleteData(id)
-        .then(({ data }) => {
-          swal.fire('Success', data.message, 'success');
-          return getProfile();
-        })
-        .then(() => {
-          refreshPage();
-        })
-        .catch(() => {})
-        .finally(() => (loading.submit = false));
-    }
+    icon: 'warning'
   });
+
+  if (confirmed) {
+    loading.submit = true;
+
+    deleteData(id)
+      .then(({ data }) => {
+        swal.fire('Success', data.message, 'success');
+        return getProfile();
+      })
+      .then(() => {
+        refreshPage();
+      })
+      .catch(() => {})
+      .finally(() => (loading.submit = false));
+  }
 };
 
 const closeDialogForm = () => {

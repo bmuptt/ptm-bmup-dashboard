@@ -78,3 +78,10 @@ export function activeMenu(id: number) {
     method: 'PUT',
   });
 }
+
+export function hardDeleteMenu(id: number) {
+  return api({
+    url: `${basePath}/${id}/hard`,
+    method: 'DELETE',
+  });
+}

@@ -10,10 +10,10 @@
       <template #activator="{ props }">
         <v-list-item
           v-bind="props"
-          :title="item.name"
           color="primary"
-          rounded="xl"
-        />
+        >
+          <v-list-item-title>{{ item.name }}</v-list-item-title>
+        </v-list-item>
       </template>
 
       <recursive-menu :items="item.children" />
@@ -24,7 +24,6 @@
       link
       :to="item.url !== null ? item.url : '/home'"
       color="primary"
-      rounded="xl"
     >
       <v-list-item-title>{{ item.name }}</v-list-item-title>
     </v-list-item>

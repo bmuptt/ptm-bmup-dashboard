@@ -54,44 +54,6 @@
           :items="dataProfile.menu"
         />
       </v-list>
-
-      <!-- <v-list class="mb-6">
-        <v-list-item
-          link
-          to="/app-management/user"
-          color="primary"
-          rounded="xl"
-        >
-          <v-list-item-title>User</v-list-item-title>
-        </v-list-item>
-
-        <v-list-item
-          link
-          to="/app-management/role"
-          color="primary"
-          rounded="xl"
-        >
-          <v-list-item-title>Role</v-list-item-title>
-        </v-list-item>
-
-        <v-list-item
-          link
-          to="/app-management/menu"
-          color="primary"
-          rounded="xl"
-        >
-          <v-list-item-title>Menu</v-list-item-title>
-        </v-list-item>
-
-        <v-list-item
-          link
-          to="/app-management/role-menu"
-          color="primary"
-          rounded="xl"
-        >
-          <v-list-item-title>Role Menu</v-list-item-title>
-        </v-list-item>
-      </v-list> -->
     </v-navigation-drawer>
 
     <!--Toolbar-->
@@ -121,6 +83,19 @@
     <v-main>
       <router-view />
     </v-main>
+
+    <!-- CONFIRM DIALOG -->
+    <confirm-dialog
+      v-model="showDialog"
+      :title="dialogOptions.title"
+      :html="dialogOptions.html"
+      :confirm-button-text="dialogOptions.confirmButtonText"
+      :cancel-button-text="dialogOptions.cancelButtonText"
+      :confirm-button-color="dialogOptions.confirmButtonColor"
+      :icon="dialogOptions.icon"
+      @confirm="handleConfirm"
+      @cancel="handleCancel"
+    />
   </div>
 </template>
 
@@ -129,24 +104,20 @@ import type { IResProfile } from '@/model/auth-interface';
 import { logout, profile } from '@/service/auth';
 import { getCoreSetting } from '@/service/Setting/core';
 import { useAppStore } from '@/stores/app';
-import { useAttributeDialogConfirm } from '@/utils/attribute-dialog-confirm';
+import { useConfirmDialog } from '@/utils/confirm-dialog';
 import { useLoading } from '@/utils/loading';
-import Swal from 'sweetalert2';
 import RecursiveMenu from './RecursiveMenu.vue';
-// import { useTheme } from '@/composables/useTheme'; // Commented out since we're using direct refs now
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 
 const store = useAppStore();
-const swal = inject<typeof Swal>('$swal');
 const router = useRouter();
-// const { appName, primaryColor } = useTheme(); // Commented out since we're using direct refs now
 
 // Create reactive refs for app bar
 const appBarTitle = ref('-');
 const appBarColor = ref('primary');
 
-if (!swal) {
-  throw new Error('Swal instance is not provided!');
-}
+// Confirm dialog
+const { showDialog, dialogOptions, showConfirm, handleConfirm, handleCancel } = useConfirmDialog();
 
 // loading
 const { loading, resultLoading } = useLoading();
@@ -230,32 +201,32 @@ watch(
     if (newV) {
       appBarTitle.value = newV.name || '-';
       appBarColor.value = newV.primary_color || 'primary';
+      
     }
   },
   { deep: true }
 );
 
-const submitLogout = () => {
-  const data = {
+const submitLogout = async () => {
+  const confirmed = await showConfirm({
     title: 'Logout',
-    html: `Are you sure you want to log out?`,
+    html: 'Are you sure you want to log out?',
     confirmButtonText: 'Yes, Logout',
-  };
-
-  swal.fire(useAttributeDialogConfirm(data)).then((result) => {
-    if (result.isConfirmed) {
-      loading.submit = true;
-
-      logout()
-        .then(() => {
-          store.addProfileGlobal(null);
-          localStorage.removeItem('refresh_token')
-          router.push('/');
-        })
-        .catch(() => {})
-        .finally(() => (loading.submit = false));
-    }
+    icon: 'question',
   });
+
+  if (confirmed) {
+    loading.submit = true;
+
+    logout()
+      .then(() => {
+        store.addProfileGlobal(null);
+        localStorage.removeItem('refresh_token')
+        router.push('/');
+      })
+      .catch(() => {})
+      .finally(() => (loading.submit = false));
+  }
 };
 
 const fetchCoreSetting = () => {

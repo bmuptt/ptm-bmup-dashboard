@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ConfirmDialog: typeof import('./components/common/ConfirmDialog.vue')['default']
     DatePicker: typeof import('./components/common/DatePicker.vue')['default']
     DialogAddMenu: typeof import('./components/UI/AppManagement/Menu/DialogAddMenu.vue')['default']
     DialogFormHeader: typeof import('./components/UI/AppManagement/Menu/DialogFormHeader.vue')['default']
@@ -18,5 +19,6 @@ declare module 'vue' {
     FormDataMenu: typeof import('./components/UI/AppManagement/Menu/FormDataMenu.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    TinyMCE: typeof import('./components/common/TinyMCE.vue')['default']
   }
 }

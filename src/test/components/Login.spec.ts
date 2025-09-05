@@ -7,7 +7,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { createRouter, createWebHistory } from 'vue-router';
 import { login } from '@/service/auth';
-import { responseRejectLogin, responseResolvedLogin } from './mock/auth-mock';
+import { responseRejectLogin, responseResolvedLogin } from '../mock/auth-mock';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -16,6 +16,16 @@ const router = createRouter({
 
 vi.mock('@/service/auth', () => ({
   login: vi.fn(), // Mock function login
+}));
+
+
+vi.mock('@/stores/app', () => ({
+  useAppStore: vi.fn(() => ({
+    coreSetting: {
+      primary_color: '#f86f24',
+      secondary_color: '#efbc37'
+    }
+  }))
 }));
 
 const vuetify = createVuetify({
@@ -130,4 +140,5 @@ describe('Login Page', () => {
     expect(pushMock).toHaveBeenCalledTimes(1);
     expect(pushMock).toHaveBeenCalledWith('/home'); // Sesuaikan dengan path default
   });
+
 });

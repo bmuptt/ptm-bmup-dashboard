@@ -40,14 +40,33 @@
                 md="6"
               >
                 <v-text-field
-                  v-model="state.description"
-                  label="Deskripsi"
+                  v-model="state.name"
+                  label="Nama Aplikasi"
                   variant="outlined"
                   density="compact"
-                  clearable
-                  :error-messages="v$.description.$errors.map((e) => e.$message as string)"
-                  @blur="v$.description.$touch()"
+                  :error-messages="v$.name.$errors.map((e) => e.$message as string)"
+                  @blur="v$.name.$touch()"
                 />
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col cols="12">
+                <label class="text-body-2 text-medium-emphasis mb-2 d-block">
+                  Deskripsi
+                </label>
+                <TinyMCE
+                  v-model="state.description"
+                  :disabled="loading.data"
+                  placeholder="Masukkan deskripsi aplikasi..."
+                  :height="200"
+                />
+                <div
+                  v-if="v$.description.$errors.length > 0"
+                  class="text-caption text-error mt-1"
+                >
+                  {{ v$.description.$errors.map((e) => e.$message as string).join(', ') }}
+                </div>
               </v-col>
             </v-row>
 
@@ -183,6 +202,7 @@ import { useLoadingComponent } from '@/utils/loading';
 import { rules } from '@/utils/setting/core/form';
 import useVuelidate from '@vuelidate/core';
 import { useAppStore } from '@/stores/app';
+import TinyMCE from '@/components/common/TinyMCE.vue';
 
 
 const route = useRoute();
