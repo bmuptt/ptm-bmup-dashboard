@@ -102,7 +102,6 @@
 <script lang="ts" setup>
 import type { IResProfile } from '@/model/auth-interface';
 import { logout, profile } from '@/service/auth';
-import { getCoreSetting } from '@/service/Setting/core';
 import { useAppStore } from '@/stores/app';
 import { useConfirmDialog } from '@/utils/confirm-dialog';
 import { useLoading } from '@/utils/loading';
@@ -115,6 +114,12 @@ const router = useRouter();
 // Create reactive refs for app bar
 const appBarTitle = ref('-');
 const appBarColor = ref('primary');
+
+// Set initial title from store if available
+if (store.coreSetting) {
+  appBarTitle.value = store.coreSetting.name || '-';
+  appBarColor.value = store.coreSetting.primary_color || 'primary';
+}
 
 // Confirm dialog
 const { showDialog, dialogOptions, showConfirm, handleConfirm, handleCancel } = useConfirmDialog();
@@ -201,7 +206,6 @@ watch(
     if (newV) {
       appBarTitle.value = newV.name || '-';
       appBarColor.value = newV.primary_color || 'primary';
-      
     }
   },
   { deep: true }
@@ -229,22 +233,6 @@ const submitLogout = async () => {
   }
 };
 
-const fetchCoreSetting = () => {
-  loading.dataCore = true;
-   
-  getCoreSetting()
-    .then(({ data }) => {
-      store.addCoreSetting(data.data);
-      appBarTitle.value = data.data.name || '-';
-      appBarColor.value = data.data.primary_color || 'primary';
-    })
-    .catch((error) => {
-      console.error('Error fetching core setting:', error);
-    })
-    .finally(() => {
-      loading.dataCore = false;
-    });
-};
 
 const fetchData = () => {
   loading.data = true;
@@ -257,6 +245,5 @@ const fetchData = () => {
     .finally(() => (loading.data = false));
 };
 
-fetchCoreSetting();
 fetchData();
 </script>

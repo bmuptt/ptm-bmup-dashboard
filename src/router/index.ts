@@ -25,7 +25,7 @@ const router = createRouter({
         isGlobal: true,
         coreSystem: 'NoCore',
       },
-      component: () => import('@/views/NotFound.vue'),
+      component: () => import('@/pages/NotFound.vue'),
     },
   ],
 });

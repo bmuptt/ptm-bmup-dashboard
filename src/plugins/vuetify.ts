@@ -13,7 +13,7 @@ import { createVuetify } from 'vuetify'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
-export default createVuetify({
+export const vuetify = createVuetify({
   icons: {
     defaultSet: 'mdi',
     aliases,
@@ -22,13 +22,16 @@ export default createVuetify({
     },
   },
   theme: {
-    defaultTheme: 'light',
+    defaultTheme: 'customTheme',
     themes: {
-      light: {
+      customTheme: {
+        dark: false,
         colors: {
-          primary: '#f86f24',
+          primary: '#1976D2', // Default Vuetify primary color
         },
       },
     },
   },
 })
+
+export default vuetify

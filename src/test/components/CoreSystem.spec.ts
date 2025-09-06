@@ -9,6 +9,7 @@ import { getCoreSetting } from '../../service/Setting/core';
 import { responseCoreSettingSuccess, responseCoreSettingError } from '../mock/core-mock';
 import { responseProfileSuccess, responseProfileError } from '../mock/auth-mock';
 import type { AxiosResponse } from 'axios';
+import type { ICoreSetting } from '@/model/core-setting-interface';
 
 // Type for component instance with exposed properties
 type CoreSystemInstance = {
@@ -31,7 +32,7 @@ vi.mock('@/service/Setting/core', () => ({
 // Mock stores
 const mockStore = {
   profileGlobal: null,
-  coreSetting: null,
+  coreSetting: null as ICoreSetting | null,
   addProfileGlobal: vi.fn(),
   addCoreSetting: vi.fn(),
 };
@@ -103,7 +104,19 @@ describe('CoreSystem Component', () => {
   let router: Router;
 
   beforeEach(() => {
-    vuetify = createVuetify();
+    vuetify = createVuetify({
+      theme: {
+        defaultTheme: 'customTheme',
+        themes: {
+          customTheme: {
+            dark: false,
+            colors: {
+              primary: '#0D47A1', // Default primary color
+            },
+          },
+        },
+      },
+    });
     router = createRouter({
       history: createWebHistory(),
       routes: [
@@ -328,6 +341,30 @@ describe('CoreSystem Component', () => {
     
     expect((wrapper.vm as unknown as CoreSystemInstance).drawer).toBe(false);
   });
+
+  test('should set initial title from store if core setting exists', async () => {
+    // Mock core setting in store
+    const mockCoreSetting = {
+      id: 1,
+      name: 'PTM BMUP',
+      logo: 'http://localhost:8000/storage/logos/test.jpg',
+      description: 'Test description',
+      address: 'Test address',
+      maps: null,
+      primary_color: '#f86f24',
+      secondary_color: '#efbc37',
+      created_at: '2025-08-27T15:08:11.000000Z',
+      updated_at: '2025-09-05T21:32:25.000000Z'
+    };
+
+    mockStore.coreSetting = mockCoreSetting;
+    
+    wrapper = createWrapper();
+    
+    // Check if title is set from store
+    const toolbarTitle = wrapper.find('[data-testid="toolbar-title"]');
+    expect(toolbarTitle.text()).toBe('PTM BMUP');
+  });
 });
 
 describe('CoreSystem Service Integration', () => {
@@ -390,5 +427,70 @@ describe('CoreSystem Service Integration', () => {
     
     await expect(logout()).rejects.toEqual(errorResponse);
     expect(logout).toHaveBeenCalled();
+  });
+});
+
+describe('CoreSystem Dynamic Primary Color Integration', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test('should call core setting service and handle primary color', async () => {
+    // Mock successful core setting response with custom primary color
+    const customResponse = {
+      data: {
+        success: true,
+        data: {
+          id: 1,
+          name: 'PTM BMUP',
+          logo: 'http://localhost:8000/storage/logos/test.jpg',
+          description: 'Test description',
+          address: 'Test address',
+          maps: null,
+          primary_color: '#f86f24',
+          secondary_color: '#efbc37',
+          created_at: '2025-08-27T15:08:11.000000Z',
+          updated_at: '2025-09-05T21:32:25.000000Z'
+        }
+      }
+    };
+
+    vi.mocked(getCoreSetting).mockResolvedValue(customResponse as AxiosResponse);
+    
+    const result = await getCoreSetting();
+    
+    expect(getCoreSetting).toHaveBeenCalled();
+    expect(result.data.success).toBe(true);
+    expect(result.data.data.primary_color).toBe('#f86f24');
+    expect(result.data.data.name).toBe('PTM BMUP');
+  });
+
+  test('should handle core setting with empty primary color', async () => {
+    // Mock core setting response without primary color
+    const responseWithoutColor = {
+      data: {
+        success: true,
+        data: {
+          id: 1,
+          name: 'PTM BMUP',
+          logo: 'http://localhost:8000/storage/logos/test.jpg',
+          description: 'Test description',
+          address: 'Test address',
+          maps: null,
+          primary_color: '',
+          secondary_color: '#efbc37',
+          created_at: '2025-08-27T15:08:11.000000Z',
+          updated_at: '2025-09-05T21:32:25.000000Z'
+        }
+      }
+    };
+
+    vi.mocked(getCoreSetting).mockResolvedValue(responseWithoutColor as AxiosResponse);
+    
+    const result = await getCoreSetting();
+    
+    expect(getCoreSetting).toHaveBeenCalled();
+    expect(result.data.success).toBe(true);
+    expect(result.data.data.primary_color).toBe('');
   });
 });

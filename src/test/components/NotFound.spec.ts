@@ -2,7 +2,7 @@ import { describe, test, expect, vi, afterEach } from 'vitest';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import { createRouter, createWebHistory, type Router } from 'vue-router';
-import NotFound from '../../views/NotFound.vue';
+import NotFound from '../../pages/NotFound.vue';
 
 // Type for component instance
 interface NotFoundInstance {
