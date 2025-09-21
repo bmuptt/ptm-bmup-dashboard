@@ -1,6 +1,13 @@
 // Global test setup to handle unhandled rejections
 import { vi, beforeEach, afterEach } from 'vitest';
 
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
 // Suppress unhandled rejections in tests
 const originalConsoleError = console.error;
 

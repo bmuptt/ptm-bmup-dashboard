@@ -140,7 +140,6 @@ watch(
       secondaryColor.value = newV.secondary_color || '#efbc37';
       logoUrl.value = newV.logo || '';
       appName.value = newV.name || '-';
-      console.log('Core setting loaded:', { logo: newV.logo, name: newV.name });
     }
   },
   { deep: true, immediate: true }
@@ -156,7 +155,6 @@ const fetchCoreSettingFallback = () => {
           secondaryColor.value = data.data.secondary_color || '#efbc37';
           logoUrl.value = data.data.logo || '';
           appName.value = data.data.name || '-';
-          console.log('Fallback core setting loaded:', { logo: data.data.logo, name: data.data.name });
         }
       })
       .catch((error) => {

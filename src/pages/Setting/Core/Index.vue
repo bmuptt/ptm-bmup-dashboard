@@ -35,19 +35,6 @@
                   @blur="v$.name.$touch()"
                 />
               </v-col>
-              <v-col
-                cols="12"
-                md="6"
-              >
-                <v-text-field
-                  v-model="state.name"
-                  label="Nama Aplikasi"
-                  variant="outlined"
-                  density="compact"
-                  :error-messages="v$.name.$errors.map((e) => e.$message as string)"
-                  @blur="v$.name.$touch()"
-                />
-              </v-col>
             </v-row>
 
             <v-row>
@@ -179,6 +166,7 @@
             <v-row class="mt-4">
               <v-col cols="12">
                 <v-btn
+                  v-if="permission?.update"
                   type="submit"
                   color="primary"
                   :loading="loading.submit"
@@ -203,11 +191,14 @@ import { rules } from '@/utils/setting/core/form';
 import useVuelidate from '@vuelidate/core';
 import { useAppStore } from '@/stores/app';
 import TinyMCE from '@/components/common/TinyMCE.vue';
+import type { IResPermission } from '@/model/auth-interface';
+import { getPermission } from '@/service/auth';
 
 
 const route = useRoute();
 const swal = inject('$swal') as typeof import('sweetalert2').default;
 const appStore = useAppStore();
+const permission = ref<IResPermission | null>(null);
 
 // loading
 const { loading } = useLoadingComponent();
@@ -276,6 +267,21 @@ const fetchData = () => {
   loading.data = false;
 };
 
+// permission
+const fetchPermission = () => {
+  loading.permission = true;
+  const paramsPermission = {
+    key_menu: (route.matched[2]?.name as string) || '',
+  };
+
+  getPermission(paramsPermission)
+    .then(({ data }) => {
+      permission.value = data.data;
+    })
+    .catch(() => {})
+    .finally(() => (loading.permission = false));
+};
+
 const handleSubmit = () => {
   v$.value.$touch();
   
@@ -330,6 +336,7 @@ watch(
 // Fetch data on component mount
 onMounted(() => {
   v$.value.$touch();
+  fetchPermission();
 });
 
 // Cleanup object URLs on unmount

@@ -1,0 +1,17 @@
+- jangan running aplikasi karena saya udah run aplikasinya, cukup run unit testnya, kalau ada error di fix
+- buat unit test untuk test flow saja jika ada perubahan, jalankan testnya, kalau ada error di fix
+- test component di src/test/components/UI/ dan pisahkan dengan folder spesifik, src\components\UI masuknya di test ini juga
+- test common taruh di src/test/components/common/
+- test custom library taruh di test/utils
+- pattern saya lebih baik banyak file yang penting spesifik dan gampang untuk di maintance dan di debug
+- tolong di cek apakah component atau file js yang di rubah punya unit test? kalau belum dapat dibuat unit testnya? kalau belum dan bisa tolong dibuat unit testnya agar memastikan script berjalan lancar
+- kalau mau jalanin semua unit test pakai npm run test:run
+- hindari pakai tipe data any sebisa mungkin
+- jangan buat interface di component tapi di src\model
+- kalau ada call api tolong pakai promise jangan pakain async await. untuk bagian catch cukup console.error saja karena sudah di tangani config api
+- loading pakai src\utils\loading.ts. untuk result loadingnya pakai resultLoading di halaman htmlnya. tolong pelajari dari file lain
+- import vue dan vue-router tidak perlu karena sudah ada auto import
+- tolong perhatikan ada problems atau error message tidak di file yang diubah
+- kalau buat textfield buat dengan ukuran compact
+- tampilan harus responsive dan enak dilihat
+- textfield yang readonly biasakan backgroundnya warna abu abu

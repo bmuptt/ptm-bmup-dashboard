@@ -1,19 +1,39 @@
 <template>
   <div class="tinymce-wrapper">
+    <v-progress-linear
+      v-if="resultLoading"
+      indeterminate
+      color="primary"
+      class="mb-2"
+    />
     <Editor
+      v-if="isConfigLoaded"
       :api-key="apiKey"
       :model-value="modelValue"
       :init="editorConfig"
-      :disabled="disabled"
+      :disabled="disabled || resultLoading"
       @update:model-value="handleUpdate"
     />
+    <div
+      v-else-if="!resultLoading"
+      class="text-center pa-4"
+    >
+      <v-alert
+        type="warning"
+        variant="tonal"
+      >
+        TinyMCE editor tidak dapat dimuat karena API key tidak dikonfigurasi.
+      </v-alert>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import Editor from '@tinymce/tinymce-vue';
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import type { TinyMCEProps, TinyMCEEmits } from '@/model/tinymce-interface';
+import { getConfigKey } from '@/service/Setting/config';
+import { useLoading } from '@/utils/loading';
 
 const props = withDefaults(defineProps<TinyMCEProps>(), {
   modelValue: '',
@@ -24,7 +44,33 @@ const props = withDefaults(defineProps<TinyMCEProps>(), {
 
 const emit = defineEmits<TinyMCEEmits>();
 
-const apiKey = computed(() => import.meta.env.VITE_TINYMCE_API_KEY || 'no-api-key');
+const { loading, resultLoading } = useLoading();
+const apiKey = ref('no-api-key');
+const isConfigLoaded = ref(false);
+
+const fetchConfigKey = () => {
+  loading.data = true;
+  getConfigKey()
+    .then((response) => {
+      if (response.data.success && response.data.data.tinymce.is_configured) {
+        apiKey.value = response.data.data.tinymce.api_key;
+        isConfigLoaded.value = true;
+      } else {
+        isConfigLoaded.value = false;
+      }
+    })
+    .catch((error) => {
+      console.error('Failed to fetch TinyMCE config:', error);
+      isConfigLoaded.value = false;
+    })
+    .finally(() => {
+      loading.data = false;
+    });
+};
+
+onMounted(() => {
+  fetchConfigKey();
+});
 
 const editorConfig = ref({
   height: props.height,

@@ -1,9 +1,9 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { refreshToken } from './auth';
 import { createPinia } from 'pinia';
 import { useAppStore } from '@/stores/app';
 import router from '@/router';
+import { tokenManager } from './tokenManager';
 
 const baseUrl = import.meta.env.VITE_APP_BACKEND_URL_SETTING;
 const pinia = createPinia();
@@ -28,49 +28,17 @@ apiMaster.interceptors.request.use((config) => {
   return config;
 });
 
-let isRefreshing = false;
-let failedQueue: (() => void)[] = [];
-
 apiMaster.interceptors.response.use(
   (res) => {
     return res;
   },
   async (error) => {
     if (error.response.status === 401) {
-      if (!isRefreshing) {
-        isRefreshing = true;
-
-        const data = {
-          refresh_token: localStorage.getItem('refresh_token') ?? '',
-        };        
-
-        return refreshToken(data)
-          .then(({ data: { refresh_token } }) => {
-            localStorage.setItem('refresh_token', refresh_token);
-            isRefreshing = false;
-
-            // Mengulangi permintaan yang terjeda setelah token diperbarui
-            if (failedQueue.length > 0) {
-              const requests = failedQueue;
-              failedQueue = [];
-
-              requests.forEach((callback) => {
-                callback();
-              });
-            }
-
-            return apiMaster(error.config);
-          })
-          .catch(() => {
-            isRefreshing = false;
-          });
-      } else {
-        // Menunggu refresh token selesai, simpan permintaan yang gagal
-        return new Promise((resolve) => {
-          failedQueue.push(() => {
-            resolve(apiMaster(error.config));
-          });
-        });
+      try {
+        return await tokenManager.handleTokenRefresh(error, (config) => apiMaster(config));
+      } catch (refreshError) {
+        // Token refresh failed, just reject without logout
+        return Promise.reject(refreshError);
       }
     } else if (error.response.status === 403 || error.response.status === 429) {
       // logout()

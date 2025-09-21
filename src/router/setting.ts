@@ -10,11 +10,19 @@ export const settingRoutes = {
   children: [
     {
       path: 'core',
-      name: 'setting-core',
+      name: 'core',
       meta: {
-        label: 'Core Setting',
+        label: 'Core',
       },
       component: () => import('@/pages/Setting/Core/Index.vue'),
+    },
+    {
+      path: 'member',
+      name: 'member',
+      meta: {
+        label: 'Member',
+      },
+      component: () => import('@/pages/Setting/Member/Index.vue'),
     },
   ],
 };
