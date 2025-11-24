@@ -70,7 +70,7 @@
             hover
             density="compact"
             :items-per-page-options="itemsPerPageOptions"
-            :items-length="total"
+            :items-length="safeTotal"
             :headers="headers"
             :items="items"
             :loading="resultLoading"
@@ -87,7 +87,7 @@
               </v-avatar>
             </template>
             <template #[`item.actions`]="{ item }">
-              <v-menu v-if="permission?.update || permission?.delete">
+              <v-menu v-if="permission?.update || permission?.create">
                 <template #activator="{ props }">
                   <v-btn
                     density="compact"
@@ -106,18 +106,11 @@
                     <v-list-item-title>Edit</v-list-item-title>
                   </v-list-item>
                   <v-list-item
-                    v-if="permission?.create && item.user_id === null && item.email"
+                    v-if="permission?.create && item.user_id === null"
                     link
                     @click="openCreateUserDialog(item)"
                   >
                     <v-list-item-title>Create User</v-list-item-title>
-                  </v-list-item>
-                  <v-list-item
-                    v-if="permission?.delete"
-                    link
-                    @click="submitDelete(item.id)"
-                  >
-                    <v-list-item-title>Delete</v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-menu>
@@ -154,24 +147,12 @@
         @refresh-page="refreshPage"
       />
     </v-dialog>
-
-    <confirm-dialog
-      v-model="showDialog"
-      :title="dialogOptions.title"
-      :html="dialogOptions.html"
-      :confirm-button-text="dialogOptions.confirmButtonText"
-      :cancel-button-text="dialogOptions.cancelButtonText"
-      :confirm-button-color="dialogOptions.confirmButtonColor"
-      :icon="dialogOptions.icon"
-      @confirm="handleConfirm"
-      @cancel="handleCancel"
-    />
   </div>
 </template>
 
 <script lang="ts" setup>
 import type { IResponseMember } from '@/model/member-interface';
-import { deleteData, list } from '@/service/Setting/member';
+import { list } from '@/service/Setting/member';
 import { useLoadingComponent } from '@/utils/loading';
 import { useDisplay } from 'vuetify';
 import DialogForm from '../../../components/UI/Setting/Member/DialogFormMember.vue';
@@ -180,12 +161,7 @@ import type { IDefaultParams } from '@/model/utils-interface';
 import { useTable } from '@/utils/setting/member/list';
 import type { IResPermission } from '@/model/auth-interface';
 import { getPermission } from '@/service/auth';
-import { getProfile } from '@/utils/tools';
-import { useConfirmDialog } from '@/utils/confirm-dialog';
-import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 
-const swal = inject('$swal') as typeof import('sweetalert2').default;
-const { showDialog, dialogOptions, showConfirm, handleConfirm, handleCancel } = useConfirmDialog();
 const route = useRoute();
 const { smAndDown, mdAndUp } = useDisplay();
 const permission = ref<IResPermission | null>(null);
@@ -197,6 +173,7 @@ const { loading, resultLoading } = useLoadingComponent();
 const { headers, itemsPerPageOptions } = useTable(mdAndUp.value);
 const items = ref<IResponseMember[]>([]);
 const total = ref<number>(0);
+const safeTotal = computed(() => Math.max(total.value || 0, 1));
 
 // dialog
 const selectData = ref<IResponseMember | null>(null);
@@ -244,30 +221,6 @@ const fetchPermission = () => {
     })
     .catch(() => {})
     .finally(() => (loading.permission = false));
-};
-
-const submitDelete = async (id: number) => {
-  const confirmed = await showConfirm({
-    title: 'Delete Data',
-    html: 'Are you sure you want to delete this data?',
-    confirmButtonText: 'Yes',
-    icon: 'warning'
-  });
-
-  if (confirmed) {
-    loading.submit = true;
-
-    deleteData(id)
-      .then(({ data }) => {
-        swal.fire('Success', data.message, 'success');
-        return getProfile();
-      })
-      .then(() => {
-        refreshPage();
-      })
-      .catch(() => {})
-      .finally(() => (loading.submit = false));
-  }
 };
 
 const closeDialogForm = () => {

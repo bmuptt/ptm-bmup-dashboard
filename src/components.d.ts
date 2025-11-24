@@ -23,5 +23,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TinyMCE: typeof import('./components/common/TinyMCE.vue')['default']
+    TipTap: typeof import('./components/common/TipTap.vue')['default']
+    TipTapSimple: typeof import('./components/common/TipTapSimple.vue')['default']
   }
 }

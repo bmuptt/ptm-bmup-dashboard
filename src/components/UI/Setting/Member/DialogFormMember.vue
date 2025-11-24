@@ -47,6 +47,7 @@
               name="name"
               label="Name"
               variant="outlined"
+              clearable
               :error-messages="v$.name.$errors.map((e) => e.$message as string)"
               @blur="v$.name.$touch()"
             />
@@ -57,16 +58,17 @@
             md="6"
           >
             <v-text-field
-              v-model="state.email"
+              v-model="state.username"
               class="mt-2"
               density="compact"
-              name="email"
-              label="Email (Optional)"
+              name="username"
+              label="Username"
               variant="outlined"
-              :readonly="isEmailReadonly"
-              :bg-color="isEmailReadonly ? 'grey-lighten-2' : undefined"
-              :error-messages="v$.email.$errors.map((e) => e.$message as string)"
-              @blur="v$.email.$touch()"
+              clearable
+              :readonly="isUsernameReadonly"
+              :bg-color="isUsernameReadonly ? 'grey-lighten-2' : undefined"
+              :error-messages="v$.username.$errors.map((e) => e.$message as string)"
+              @blur="v$.username.$touch()"
             />
           </v-col>
         </v-row>
@@ -119,6 +121,7 @@
               name="phone"
               label="Phone"
               variant="outlined"
+              clearable
               :error-messages="v$.phone.$errors.map((e) => e.$message as string)"
               @blur="v$.phone.$touch()"
             />
@@ -148,6 +151,7 @@
               label="Address"
               variant="outlined"
               rows="3"
+              clearable
               :error-messages="v$.address.$errors.map((e) => e.$message as string)"
               @blur="v$.address.$touch()"
             />
@@ -209,7 +213,7 @@
 <script lang="ts" setup>
 import { useVuelidate } from '@vuelidate/core';
 import { useLoadingComponent } from '@/utils/loading';
-import { add, update } from '@/service/Setting/member';
+import { add, update, detail } from '@/service/Setting/member';
 import type { IResponseMember, IRequestMember } from '@/model/member-interface';
 import { rules } from '@/utils/setting/member/form';
 
@@ -230,7 +234,7 @@ const { loading, resultLoading } = useLoadingComponent();
 // data
 const state = reactive<IRequestMember>({
   name: '',
-  email: '',
+  username: '',
   gender: '',
   birthdate: '',
   address: '',
@@ -250,7 +254,7 @@ const currentPhoto = ref<string>('');
 const fileInputRef = ref<HTMLInputElement>();
 
 // computed
-const isEmailReadonly = computed(() => {
+const isUsernameReadonly = computed(() => {
   return props.selectData?.user_id !== null && props.selectData?.user_id !== undefined;
 });
 
@@ -310,7 +314,7 @@ const submitForm = () => {
   
   const formData = new FormData();
   formData.append('name', state.name);
-  formData.append('email', state.email);
+  formData.append('username', state.username);
   formData.append('gender', state.gender);
   formData.append('birthdate', state.birthdate);
   formData.append('address', state.address);
@@ -321,9 +325,8 @@ const submitForm = () => {
     formData.append('photo', state.photo);
   }
   
-  // Add _method and status_file for update
+  // Add status_file for update
   if (props.selectData) {
-    formData.append('_method', 'PUT');
     formData.append('status_file', state.status_photo);
   }
   
@@ -346,45 +349,81 @@ const submitForm = () => {
     });
 };
 
-// watch for selectData changes
-watch(
-  () => props.selectData,
-  (newData) => {
-    if (newData) {
-      state.name = newData.name;
-      state.email = newData.email;
-      state.gender = newData.gender;
-      state.birthdate = newData.birthdate;
-      state.address = newData.address;
-      state.phone = newData.phone;
-      state.active = newData.active;
-      state.status_photo = '0';
-      currentPhoto.value = newData.photo || '';
-    } else {
-      // Reset form for new member
-      state.name = '';
-      state.email = '';
-      state.gender = '';
-      state.birthdate = '';
-      state.address = '';
-      state.phone = '';
-      state.photo = null;
-      state.status_photo = '0';
-      state.active = true;
-      currentPhoto.value = '';
-    }
-  },
-  { immediate: true }
-);
+// Fetch form data when editing
+const fetchForm = () => {
+  v$.value.$touch();
+  
+  if (props.selectData) {
+    loading.data = true;
+    detail(props.selectData.id)
+      .then(({ data }) => {
+        // Format birthdate to YYYY-MM-DD for input type="date"
+        let birthdate = '';
+        if (data.data.birthdate) {
+          // Check if already in YYYY-MM-DD format
+          if (/^\d{4}-\d{2}-\d{2}$/.test(data.data.birthdate)) {
+            birthdate = data.data.birthdate;
+          } else {
+            // Convert other date formats to YYYY-MM-DD
+            try {
+              const date = new Date(data.data.birthdate);
+              if (!isNaN(date.getTime())) {
+                birthdate = date.toISOString().split('T')[0];
+              }
+            } catch (e) {
+              console.error('Error parsing birthdate:', e);
+            }
+          }
+        }
+        
+        state.name = data.data.name;
+        state.username = data.data.username;
+        state.gender = data.data.gender;
+        state.birthdate = birthdate;
+        state.address = data.data.address;
+        state.phone = data.data.phone;
+        state.active = data.data.active;
+        state.status_photo = '0';
+        currentPhoto.value = data.data.photo || '';
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        loading.data = false;
+      });
+  } else {
+    // Reset form for new member
+    state.name = '';
+    state.username = '';
+    state.gender = '';
+    state.birthdate = '';
+    state.address = '';
+    state.phone = '';
+    state.photo = null;
+    state.status_photo = '0';
+    state.active = true;
+    currentPhoto.value = '';
+  }
+};
 
-// cleanup on unmount
+// Fetch form data on mount
 onMounted(() => {
   v$.value.$touch();
+  fetchForm();
   
   if (currentPhoto.value && currentPhoto.value.startsWith('blob:')) {
     URL.revokeObjectURL(currentPhoto.value);
   }
 });
+
+// Watch for selectData changes (for when dialog is reopened)
+watch(
+  () => props.selectData,
+  () => {
+    fetchForm();
+  }
+);
 </script>
 
 <style scoped>

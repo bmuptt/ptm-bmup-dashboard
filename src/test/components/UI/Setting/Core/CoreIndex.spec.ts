@@ -53,11 +53,74 @@ vi.mock('sweetalert2', () => ({
   },
 }));
 
-// Mock TinyMCE component
-vi.mock('@/components/common/TinyMCE.vue', () => ({
+// Mock TipTap dependencies
+vi.mock('@tiptap/vue-3', () => ({
+  useEditor: vi.fn(() => ({
+    getHTML: vi.fn(() => '<p>Test content</p>'),
+    getText: vi.fn(() => 'Test content'),
+    isActive: vi.fn(() => false),
+    can: vi.fn(() => ({ undo: () => true, redo: () => true })),
+    chain: vi.fn(() => ({
+      focus: vi.fn(() => ({
+        toggleBold: vi.fn(() => ({
+          run: vi.fn()
+        })),
+        toggleItalic: vi.fn(() => ({
+          run: vi.fn()
+        })),
+        toggleUnderline: vi.fn(() => ({
+          run: vi.fn()
+        })),
+        toggleStrike: vi.fn(() => ({
+          run: vi.fn()
+        })),
+        toggleHeading: vi.fn(() => ({
+          run: vi.fn()
+        })),
+        toggleBulletList: vi.fn(() => ({
+          run: vi.fn()
+        })),
+        toggleOrderedList: vi.fn(() => ({
+          run: vi.fn()
+        })),
+        setTextAlign: vi.fn(() => ({
+          run: vi.fn()
+        })),
+        setLink: vi.fn(() => ({
+          run: vi.fn()
+        })),
+        unsetLink: vi.fn(() => ({
+          run: vi.fn()
+        })),
+        undo: vi.fn(() => ({
+          run: vi.fn()
+        })),
+        redo: vi.fn(() => ({
+          run: vi.fn()
+        }))
+      }))
+    })),
+    commands: {
+      setContent: vi.fn()
+    },
+    setEditable: vi.fn(),
+    destroy: vi.fn(),
+    getAttributes: vi.fn(() => ({ href: 'https://example.com' }))
+  }))
+}));
+
+vi.mock('@tiptap/starter-kit', () => ({}));
+vi.mock('@tiptap/extension-text-style', () => ({}));
+vi.mock('@tiptap/extension-color', () => ({}));
+vi.mock('@tiptap/extension-text-align', () => ({}));
+vi.mock('@tiptap/extension-underline', () => ({}));
+vi.mock('@tiptap/extension-link', () => ({}));
+
+// Mock TipTap component
+vi.mock('@/components/common/TipTap.vue', () => ({
   default: {
-    name: 'TinyMCE',
-    template: '<div data-testid="tinymce"><slot /></div>',
+    name: 'TipTap',
+    template: '<div data-testid="tiptap"><slot /></div>',
     props: ['modelValue', 'disabled', 'placeholder', 'height'],
     emits: ['update:modelValue'],
   },
@@ -179,11 +242,11 @@ describe('Core Setting Index Component', () => {
     // Check if form fields exist
     const textFields = wrapper.findAll('[data-testid="v-text-field"]');
     const textarea = wrapper.find('[data-testid="v-textarea"]');
-    const tinymce = wrapper.find('[data-testid="tinymce"]');
+    const tiptap = wrapper.find('[data-testid="tiptap"]');
     
     expect(textFields.length).toBeGreaterThan(0);
     expect(textarea.exists()).toBe(true);
-    expect(tinymce.exists()).toBe(true);
+    expect(tiptap.exists()).toBe(true);
   });
 
   test('should have only one name application input field', () => {

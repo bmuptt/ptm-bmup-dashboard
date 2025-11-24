@@ -42,7 +42,7 @@
                 <label class="text-body-2 text-medium-emphasis mb-2 d-block">
                   Deskripsi
                 </label>
-                <TinyMCE
+                <TipTap
                   v-model="state.description"
                   :disabled="loading.data"
                   placeholder="Masukkan deskripsi aplikasi..."
@@ -190,7 +190,7 @@ import { useLoadingComponent } from '@/utils/loading';
 import { rules } from '@/utils/setting/core/form';
 import useVuelidate from '@vuelidate/core';
 import { useAppStore } from '@/stores/app';
-import TinyMCE from '@/components/common/TinyMCE.vue';
+import TipTap from '@/components/common/TipTap.vue';
 import type { IResPermission } from '@/model/auth-interface';
 import { getPermission } from '@/service/auth';
 

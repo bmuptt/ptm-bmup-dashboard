@@ -16,7 +16,16 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
+    "@elastic/apm-rum-vue": "^2.1.10",
     "@tinymce/tinymce-vue": "^6.3.0",
+    "@tiptap/extension-color": "^3.7.2",
+    "@tiptap/extension-image": "^3.7.2",
+    "@tiptap/extension-link": "^3.7.2",
+    "@tiptap/extension-text-align": "^3.7.2",
+    "@tiptap/extension-text-style": "^3.7.2",
+    "@tiptap/extension-underline": "^3.7.2",
+    "@tiptap/starter-kit": "^3.7.2",
+    "@tiptap/vue-3": "^3.7.2",
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
     "@vueuse/core": "^12.5.0",

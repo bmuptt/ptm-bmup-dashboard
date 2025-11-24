@@ -1,5 +1,16 @@
 // Global test setup to handle unhandled rejections
 import { vi, beforeEach, afterEach } from 'vitest';
+// Mock tiptap extension that causes default export issues in tests
+vi.mock('@tiptap/extension-text-align', () => {
+  const mockExtension = {
+    configure: () => ({ name: 'textAlign' }),
+  };
+  return {
+    __esModule: true,
+    default: mockExtension,
+    TextAlign: mockExtension,
+  };
+});
 
 // Mock ResizeObserver
 global.ResizeObserver = vi.fn().mockImplementation(() => ({

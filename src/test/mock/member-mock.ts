@@ -6,7 +6,7 @@ export const responseMemberSuccess = {
         id: 1,
         user_id: null,
         name: "John Doe",
-        email: "john.doe@example.com",
+        username: "johndoe",
         gender: "Male",
         birthdate: "1990-01-01",
         address: "Jakarta, Indonesia",
@@ -40,7 +40,7 @@ export const responseMemberDetailSuccess = {
       id: 1,
       user_id: null,
       name: "John Doe",
-      email: "john.doe@example.com",
+      username: "johndoe",
       gender: "Male",
       birthdate: "1990-01-01",
       address: "Jakarta, Indonesia",
@@ -65,7 +65,7 @@ export const responseMemberUpdateSuccess = {
       id: 1,
       user_id: null,
       name: "John Updated",
-      email: "john.updated@example.com",
+      username: "johnupdated",
       gender: "Female",
       birthdate: "1995-05-15",
       address: "Surabaya, Jawa Timur, Indonesia",
@@ -87,6 +87,39 @@ export const responseMemberUpdateSuccess = {
 export const responseMemberError = {
   response: {
     data: { message: 'Error occurred' },
+    status: 400
+  }
+};
+
+export const responseCreateUserSuccess = {
+  data: {
+    success: true,
+    message: "Success to add data user.",
+    data: {
+      id: 42,
+      email: "user@example.com",
+      name: "John Doe",
+      gender: "Male",
+      birthdate: "1990-01-01T00:00:00.000Z",
+      photo: null,
+      active: "Active",
+      role_id: 1,
+      created_by: 7,
+      created_at: "2025-11-09T07:15:12.123Z",
+      updated_by: null,
+      updated_at: "2025-11-09T07:15:12.123Z"
+    }
+  },
+  status: 200,
+  statusText: 'OK'
+};
+
+export const responseCreateUserError = {
+  response: {
+    data: { 
+      message: 'Error occurred',
+      errors: ['Validation error']
+    },
     status: 400
   }
 };

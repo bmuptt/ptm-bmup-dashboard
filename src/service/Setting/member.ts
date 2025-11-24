@@ -38,7 +38,7 @@ export function add(data: FormData) {
 
 export function update(id: number, data: FormData) {
   return apiMaster({
-    url: `${basePath}/${id}`,
+    url: `${basePath}/${id}?_method=PUT`,
     method: 'POST',
     data,
     headers: {
@@ -54,9 +54,9 @@ export function deleteData(id: number) {
   });
 }
 
-export function createUser(data: IRequestCreateUser) {
+export function createUser(id: number, data: IRequestCreateUser) {
   return apiMaster({
-    url: `${basePath}/create-user`,
+    url: `${basePath}/create-user/${id}`,
     method: 'POST',
     data,
   });

@@ -28,7 +28,7 @@
               color="primary"
               class="mr-2 mb-2"
               :loading="resultLoading"
-              :disabled="!selectedRole"
+              :disabled="!selectedRole || !email"
             >
               Create User
             </v-btn>
@@ -57,11 +57,11 @@
             md="6"
           >
             <v-text-field
-              :model-value="memberData.email"
+              :model-value="memberData.username"
               class="mt-2 readonly-field"
               density="compact"
-              name="email"
-              label="Email"
+              name="username"
+              label="Username"
               variant="outlined"
               readonly
               bg-color="grey-lighten-4"
@@ -70,15 +70,35 @@
         </v-row>
 
         <v-row>
-          <v-col cols="12">
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <v-text-field
+              v-model="email"
+              class="mt-2"
+              density="compact"
+              name="email"
+              label="Email"
+              variant="outlined"
+              type="email"
+              :rules="emailRules"
+              required
+            />
+          </v-col>
+          <v-col
+            cols="12"
+            md="6"
+          >
             <v-text-field
               v-model="selectedRoleName"
-              class="mt-2"
+              class="mt-2 readonly-field"
               density="compact"
               name="role"
               label="Role"
               variant="outlined"
               readonly
+              bg-color="grey-lighten-4"
             >
               <template #append>
                 <v-btn
@@ -122,6 +142,13 @@ const emit = defineEmits<{
 const swal = inject('$swal') as typeof import('sweetalert2').default;
 const { loading, resultLoading } = useLoadingComponent();
 
+// Email field
+const email = ref('');
+const emailRules = [
+  (v: string) => !!v || 'Email is required',
+  (v: string) => /.+@.+\..+/.test(v) || 'Email must be valid',
+];
+
 // Role selection
 const roleDialogOpen = ref(false);
 const selectedRole = ref<IResponseRole | null>(null);
@@ -142,14 +169,19 @@ const submitForm = () => {
     return;
   }
 
+  if (!email.value || !/.+@.+\..+/.test(email.value)) {
+    swal.fire('Error', 'Please enter a valid email', 'error');
+    return;
+  }
+
   loading.submit = true;
 
   const requestData: IRequestCreateUser = {
-    member_id: props.memberData.id,
+    email: email.value,
     role_id: selectedRole.value.id,
   };
 
-  createUser(requestData)
+  createUser(props.memberData.id, requestData)
     .then(({ data }) => {
       swal.fire('Success', data.message, 'success');
       emit('refreshPage');

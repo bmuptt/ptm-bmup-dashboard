@@ -4,14 +4,13 @@ import { createVuetify } from 'vuetify';
 import { createRouter, createWebHistory, type Router } from 'vue-router';
 import type { AxiosResponse } from 'axios';
 import MemberIndex from '@/pages/Setting/Member/Index.vue';
-import { list, deleteData } from '@/service/Setting/member';
+import { list } from '@/service/Setting/member';
 import { getPermission } from '@/service/auth';
 import { responseMemberSuccess, responseMemberError } from '../../../../mock/member-mock';
 
 // Mock services
 vi.mock('@/service/Setting/member', () => ({
   list: vi.fn(),
-  deleteData: vi.fn(),
 }));
 
 vi.mock('@/service/auth', () => ({
@@ -259,55 +258,8 @@ describe('Member Index Component', () => {
     expect(list).toHaveBeenCalled();
   });
 
-  test('should call delete service when delete is confirmed', async () => {
-    // Mock successful delete response
-    vi.mocked(deleteData).mockResolvedValue({
-      data: {
-        message: 'Member deleted successfully'
-      },
-      status: 200,
-      statusText: 'OK',
-      headers: {},
-      config: {}
-    } as AxiosResponse);
 
-    wrapper = createWrapper();
-    
-    // Wait for component to be ready
-    await wrapper.vm.$nextTick();
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // Simulate delete action by calling the method through component instance
-    const component = wrapper.vm as unknown as { submitDelete: (id: number) => Promise<void> };
-    await component.submitDelete(1);
-
-    expect(deleteData).toHaveBeenCalledWith(1);
-  });
-
-  test('should handle delete service error', async () => {
-    // Mock delete error response
-    vi.mocked(deleteData).mockRejectedValue({
-      response: {
-        data: {
-          message: 'Failed to delete member'
-        }
-      }
-    });
-
-    wrapper = createWrapper();
-    
-    // Wait for component to be ready
-    await wrapper.vm.$nextTick();
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // Simulate delete action by calling the method through component instance
-    const component = wrapper.vm as unknown as { submitDelete: (id: number) => Promise<void> };
-    await component.submitDelete(1);
-
-    expect(deleteData).toHaveBeenCalledWith(1);
-  });
-
-  test('should show create user button when user_id is null and email exists', async () => {
+  test('should show create user button when user_id is null', async () => {
     const mockDataWithCreateUserCondition = {
       data: {
         data: [
@@ -315,7 +267,7 @@ describe('Member Index Component', () => {
             id: 1,
             user_id: null,
             name: 'John Doe',
-            email: 'john@example.com',
+            username: 'johndoe',
             gender: 'male',
             birthdate: '1990-01-01',
             address: 'Test Address',
@@ -345,12 +297,12 @@ describe('Member Index Component', () => {
     await new Promise(resolve => setTimeout(resolve, 100));
 
     const component = wrapper.vm as unknown as {
-      items: Array<{ user_id: number | null; email: string }>;
+      items: Array<{ user_id: number | null; username: string }>;
       permission: { create: boolean } | null;
     };
 
     expect(component.items[0].user_id).toBe(null);
-    expect(component.items[0].email).toBe('john@example.com');
+    expect(component.items[0].username).toBe('johndoe');
     expect(component.permission?.create).toBe(true);
   });
 
@@ -362,7 +314,7 @@ describe('Member Index Component', () => {
             id: 1,
             user_id: 123,
             name: 'John Doe',
-            email: 'john@example.com',
+            username: 'johndoe',
             gender: 'male',
             birthdate: '1990-01-01',
             address: 'Test Address',
@@ -392,7 +344,7 @@ describe('Member Index Component', () => {
     await new Promise(resolve => setTimeout(resolve, 100));
 
     const component = wrapper.vm as unknown as {
-      items: Array<{ user_id: number | null; email: string }>;
+      items: Array<{ user_id: number | null; username: string }>;
       permission: { create: boolean } | null;
     };
 
@@ -409,7 +361,7 @@ describe('Member Index Component', () => {
       id: 1,
       user_id: null,
       name: 'John Doe',
-      email: 'john@example.com',
+      username: 'johndoe',
       gender: 'male',
       birthdate: '1990-01-01',
       address: 'Test Address',

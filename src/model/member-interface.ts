@@ -3,7 +3,7 @@ import type { IDefaultResponse } from "./utils-interface";
 export interface IResponseMember extends IDefaultResponse {
   user_id: number | null;
   name: string;
-  email: string;
+  username: string;
   gender: string;
   birthdate: string;
   address: string;
@@ -15,7 +15,7 @@ export interface IResponseMember extends IDefaultResponse {
 
 export interface IRequestMember {
   name: string;
-  email: string;
+  username: string;
   gender: string;
   birthdate: string;
   address: string;
@@ -36,6 +36,6 @@ export interface IRequestMemberEdit {
 }
 
 export interface IRequestCreateUser {
-  member_id: number;
+  email: string;
   role_id: number;
 }

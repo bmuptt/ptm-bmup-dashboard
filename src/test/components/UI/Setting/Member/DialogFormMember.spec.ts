@@ -94,12 +94,12 @@ describe('DialogFormMember Component', () => {
     expect(wrapper.find('.font-24').text()).toBe('Form Member');
   });
 
-  test('should render component correctly for edit member', () => {
+  test('should render component correctly for edit member', async () => {
     const mockMember: IResponseMember = {
       id: 1,
       user_id: null,
       name: 'John Doe',
-      email: 'john.doe@example.com',
+      username: 'johndoe',
       gender: 'Male',
       birthdate: '1990-01-01',
       address: 'Jakarta, Indonesia',
@@ -113,6 +113,8 @@ describe('DialogFormMember Component', () => {
       updated_at: '2025-09-13T22:25:00.000000Z'
     };
 
+    vi.mocked(detail).mockResolvedValue(responseMemberDetailSuccess as AxiosResponse);
+
     wrapper = mount(DialogFormMember, {
       props: {
         selectData: mockMember,
@@ -125,7 +127,11 @@ describe('DialogFormMember Component', () => {
       },
     });
 
+    await wrapper.vm.$nextTick();
+    await new Promise(resolve => setTimeout(resolve, 100)); // Wait for detail API call
+
     expect(wrapper.find('.font-24').text()).toBe('Form Member');
+    expect(detail).toHaveBeenCalledWith(1);
   });
 
   test('should call add service when creating new member', async () => {
@@ -146,7 +152,7 @@ describe('DialogFormMember Component', () => {
     // Set form data
     await wrapper.vm.$nextTick();
     ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).name = 'John Doe';
-    ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).email = 'john@example.com';
+    ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).username = 'johndoe';
     ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).gender = 'Male';
     ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).birthdate = '1990-01-01';
     ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).address = 'Jakarta';
@@ -164,7 +170,7 @@ describe('DialogFormMember Component', () => {
       id: 1,
       user_id: null,
       name: 'John Doe',
-      email: 'john.doe@example.com',
+      username: 'johndoe',
       gender: 'Male',
       birthdate: '1990-01-01',
       address: 'Jakarta, Indonesia',
@@ -178,6 +184,7 @@ describe('DialogFormMember Component', () => {
       updated_at: '2025-09-13T22:25:00.000000Z'
     };
 
+    vi.mocked(detail).mockResolvedValue(responseMemberDetailSuccess as AxiosResponse);
     vi.mocked(update).mockResolvedValue(responseMemberSuccess as AxiosResponse);
     
     wrapper = mount(DialogFormMember, {
@@ -193,11 +200,13 @@ describe('DialogFormMember Component', () => {
     });
 
     await wrapper.vm.$nextTick();
+    await new Promise(resolve => setTimeout(resolve, 100)); // Wait for detail API call
 
     // Submit form
     await ((wrapper.vm as unknown as Record<string, unknown>).submitForm as () => Promise<void>)();
     await wrapper.vm.$nextTick();
 
+    expect(detail).toHaveBeenCalledWith(1);
     expect(update).toHaveBeenCalledWith(1, expect.any(FormData));
   });
 
@@ -219,7 +228,7 @@ describe('DialogFormMember Component', () => {
     // Set form data
     await wrapper.vm.$nextTick();
     ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).name = 'John Doe';
-    ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).email = 'john@example.com';
+    ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).username = 'johndoe';
     ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).gender = 'Male';
     ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).birthdate = '1990-01-01';
     ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).address = 'Jakarta';
@@ -269,7 +278,7 @@ describe('DialogFormMember Component', () => {
     // Set form data
     await wrapper.vm.$nextTick();
     ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).name = 'John Doe';
-    ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).email = 'john@example.com';
+    ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).username = 'johndoe';
     ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).gender = 'Male';
     ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).birthdate = '1990-01-01';
     ((wrapper.vm as unknown as Record<string, unknown>).state as Record<string, unknown>).address = 'Jakarta';
@@ -290,20 +299,19 @@ describe('DialogFormMember Component', () => {
       const result = await detail(1);
       expect(result.data.success).toBe(true);
       expect(result.data.data.name).toBe('John Doe');
-      expect(result.data.data.email).toBe('john.doe@example.com');
+      expect(result.data.data.username).toBe('johndoe');
     });
 
     test('should update member successfully', async () => {
       const formData = new FormData();
       formData.append('name', 'John Updated');
-      formData.append('email', 'john.updated@example.com');
+      formData.append('username', 'johnupdated');
       formData.append('gender', 'Female');
       formData.append('birthdate', '1995-05-15');
       formData.append('address', 'Surabaya, Jawa Timur, Indonesia');
       formData.append('phone', '08123456788');
       formData.append('active', 'true');
       formData.append('status_file', '1');
-      formData.append('_method', 'PUT');
 
       vi.mocked(update).mockResolvedValue(responseMemberUpdateSuccess as AxiosResponse);
       const result = await update(1, formData);
@@ -326,13 +334,13 @@ describe('DialogFormMember Component', () => {
     });
   });
 
-  describe('Email Field Readonly Functionality', () => {
-    test('should make email field readonly when member is synced with user (user_id is not null)', async () => {
+  describe('Username Field Readonly Functionality', () => {
+    test('should make username field readonly when member is synced with user (user_id is not null)', async () => {
       const mockMemberWithUser: IResponseMember = {
         id: 1,
         user_id: 123, // Member is synced with user
         name: 'John Doe',
-        email: 'john.doe@example.com',
+        username: 'johndoe',
         gender: 'Male',
         birthdate: '1990-01-01',
         address: 'Jakarta, Indonesia',
@@ -360,18 +368,18 @@ describe('DialogFormMember Component', () => {
 
       await wrapper.vm.$nextTick();
 
-      // Find email field
-      const emailField = wrapper.find('input[name="email"]');
-      expect(emailField.exists()).toBe(true);
-      expect(emailField.attributes('readonly')).toBeDefined();
+      // Find username field
+      const usernameField = wrapper.find('input[name="username"]');
+      expect(usernameField.exists()).toBe(true);
+      expect(usernameField.attributes('readonly')).toBeDefined();
     });
 
-    test('should make email field editable when member is not synced with user (user_id is null)', async () => {
+    test('should make username field editable when member is not synced with user (user_id is null)', async () => {
       const mockMemberWithoutUser: IResponseMember = {
         id: 1,
         user_id: null, // Member is not synced with user
         name: 'John Doe',
-        email: 'john.doe@example.com',
+        username: 'johndoe',
         gender: 'Male',
         birthdate: '1990-01-01',
         address: 'Jakarta, Indonesia',
@@ -399,13 +407,13 @@ describe('DialogFormMember Component', () => {
 
       await wrapper.vm.$nextTick();
 
-      // Find email field
-      const emailField = wrapper.find('input[name="email"]');
-      expect(emailField.exists()).toBe(true);
-      expect(emailField.attributes('readonly')).toBeUndefined();
+      // Find username field
+      const usernameField = wrapper.find('input[name="username"]');
+      expect(usernameField.exists()).toBe(true);
+      expect(usernameField.attributes('readonly')).toBeUndefined();
     });
 
-    test('should make email field editable for new member (selectData is null)', async () => {
+    test('should make username field editable for new member (selectData is null)', async () => {
       wrapper = mount(DialogFormMember, {
         props: {
           selectData: null, // New member
@@ -420,10 +428,10 @@ describe('DialogFormMember Component', () => {
 
       await wrapper.vm.$nextTick();
 
-      // Find email field
-      const emailField = wrapper.find('input[name="email"]');
-      expect(emailField.exists()).toBe(true);
-      expect(emailField.attributes('readonly')).toBeUndefined();
+      // Find username field
+      const usernameField = wrapper.find('input[name="username"]');
+      expect(usernameField.exists()).toBe(true);
+      expect(usernameField.attributes('readonly')).toBeUndefined();
     });
   });
 });

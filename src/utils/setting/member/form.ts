@@ -1,13 +1,13 @@
-import { email, helpers, required, maxLength } from '@vuelidate/validators';
+import { helpers, required, maxLength } from '@vuelidate/validators';
 
 export const rules = {
   name: {
     required: helpers.withMessage('Name is Required', required),
     maxLength: helpers.withMessage('Name must not exceed 255 characters', maxLength(255)),
   },
-  email: {
-    email: helpers.withMessage('Must be valid email format', email),
-    maxLength: helpers.withMessage('Email must not exceed 255 characters', maxLength(255)),
+  username: {
+    required: helpers.withMessage('Username is Required', required),
+    maxLength: helpers.withMessage('Username must not exceed 255 characters', maxLength(255)),
   },
   gender: {
     required: helpers.withMessage('Gender is Required', required),

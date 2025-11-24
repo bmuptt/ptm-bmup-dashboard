@@ -10,6 +10,11 @@ export const useTable = (pixel: boolean) => {
       key: "name",
     },
     {
+      title: "Username",
+      sortable: false,
+      key: "username",
+    },
+    {
       title: "Gender",
       sortable: false,
       key: "gender",
