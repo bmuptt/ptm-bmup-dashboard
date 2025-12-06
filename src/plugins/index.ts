@@ -40,6 +40,7 @@ export function registerPlugins (app: App) {
         distributedTracingOrigins: [
           import.meta.env.VITE_APP_BACKEND_URL || 'http://localhost:3000',
           import.meta.env.VITE_APP_BACKEND_URL_SETTING || 'http://localhost:3200',
+          import.meta.env.VITE_APP_BACKEND_URL_FINANCE || 'http://localhost:3300',
         ],
         propagateTracestate: true,
         distributedTracing: true,

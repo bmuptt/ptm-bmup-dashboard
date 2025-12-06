@@ -17,7 +17,8 @@
       </v-card-title>
 
       <v-card-text>
-        <div>{{ html }}</div>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <div v-html="html" />
       </v-card-text>
 
       <v-card-actions>

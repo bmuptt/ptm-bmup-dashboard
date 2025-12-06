@@ -22,6 +22,8 @@ declare module 'vue-router/auto-routes' {
     '/AppManagement/Role/Index': RouteRecordInfo<'/AppManagement/Role/Index', '/AppManagement/Role/Index', Record<never, never>, Record<never, never>>,
     '/AppManagement/RoleMenu/Index': RouteRecordInfo<'/AppManagement/RoleMenu/Index', '/AppManagement/RoleMenu/Index', Record<never, never>, Record<never, never>>,
     '/AppManagement/User/Index': RouteRecordInfo<'/AppManagement/User/Index', '/AppManagement/User/Index', Record<never, never>, Record<never, never>>,
+    '/Finance/CashBalance/Index': RouteRecordInfo<'/Finance/CashBalance/Index', '/Finance/CashBalance/Index', Record<never, never>, Record<never, never>>,
+    '/Finance/Dues/Index': RouteRecordInfo<'/Finance/Dues/Index', '/Finance/Dues/Index', Record<never, never>, Record<never, never>>,
     '/Home': RouteRecordInfo<'/Home', '/Home', Record<never, never>, Record<never, never>>,
     '/Login': RouteRecordInfo<'/Login', '/Login', Record<never, never>, Record<never, never>>,
     '/NotFound': RouteRecordInfo<'/NotFound', '/NotFound', Record<never, never>, Record<never, never>>,

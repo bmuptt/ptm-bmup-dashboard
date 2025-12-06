@@ -6,7 +6,6 @@ import * as directives from 'vuetify/directives';
 import DialogCreateUser from '@/components/UI/Setting/Member/DialogCreateUser.vue';
 import type { IResponseMember } from '@/model/member-interface';
 import { createUser } from '@/service/Setting/member';
-import type { AxiosRequestHeaders } from 'axios';
 import { responseCreateUserSuccess, responseCreateUserError } from '@/test/mock/member-mock';
 
 // Mock services
@@ -106,8 +105,9 @@ describe('DialogCreateUser', () => {
     const roleField = wrapper.find('[name="role"]');
     const roleFieldWrapper = roleField.element.closest('.readonly-field');
     
-    // Role field should not have readonly-field class
-    expect(roleFieldWrapper).toBeFalsy();
+    // Role field should use readonly-field styling
+    expect(roleFieldWrapper).toBeTruthy();
+    expect(roleField.attributes('readonly')).toBeDefined();
     
     // Should have button with "..." text for role selection
     const roleButtons = wrapper.findAll('button');
@@ -137,7 +137,11 @@ describe('DialogCreateUser', () => {
   });
 
   it('should call createUser service when form is submitted with selected role and email', async () => {
-    vi.mocked(createUser).mockResolvedValue(responseCreateUserSuccess as any);
+    vi.mocked(createUser).mockResolvedValue({
+      ...responseCreateUserSuccess,
+      headers: {},
+      config: {},
+    } as unknown as ReturnType<typeof createUser> extends Promise<infer T> ? T : never);
     
     // Open role dialog and select a role
     const component = wrapper.vm as unknown as {
@@ -251,7 +255,11 @@ describe('DialogCreateUser', () => {
   });
 
   it('should emit refreshPage and closeDialog on successful user creation', async () => {
-    vi.mocked(createUser).mockResolvedValue(responseCreateUserSuccess as any);
+    vi.mocked(createUser).mockResolvedValue({
+      ...responseCreateUserSuccess,
+      headers: {},
+      config: {},
+    } as unknown as ReturnType<typeof createUser> extends Promise<infer T> ? T : never);
     
     const component = wrapper.vm as unknown as {
       selectedRole: { id: number; name: string } | null;

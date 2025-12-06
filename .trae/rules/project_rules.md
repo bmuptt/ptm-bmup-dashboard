@@ -15,3 +15,5 @@
 - kalau buat textfield buat dengan ukuran compact
 - tampilan harus responsive dan enak dilihat
 - textfield yang readonly biasakan backgroundnya warna abu abu
+- kalau buat halaman baru, cek apakah sudah implementasi permission
+- basic run test: npm run test:run

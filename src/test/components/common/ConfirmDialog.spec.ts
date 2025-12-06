@@ -68,13 +68,13 @@ describe('ConfirmDialog Component', () => {
     expect(content.text()).toContain('Custom text content');
   });
 
-  test('should escape HTML tags in text content', () => {
-    wrapper = createWrapper({ html: '<p>HTML tags should be escaped</p>' });
+  test('should render HTML tags in content', () => {
+    wrapper = createWrapper({ html: '<p class="test-p">HTML content</p>' });
     
     const content = wrapper.find('[data-testid="card-text"]');
-    // HTML tags should be escaped and displayed as text
-    expect(content.text()).toContain('<p>HTML tags should be escaped</p>');
-    expect(content.html()).not.toContain('<p>');
+    // HTML tags should be rendered
+    expect(content.find('.test-p').exists()).toBe(true);
+    expect(content.text()).toContain('HTML content');
   });
 
   test('should display confirm and cancel buttons', () => {

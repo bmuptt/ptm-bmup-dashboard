@@ -19,11 +19,14 @@ declare module 'vue' {
     DialogFormUser: typeof import('./components/UI/AppManagement/User/DialogFormUser.vue')['default']
     DialogRoleSelection: typeof import('./components/UI/Setting/Member/DialogRoleSelection.vue')['default']
     DialogStructureMenu: typeof import('./components/UI/AppManagement/Menu/DialogStructureMenu.vue')['default']
+    DuesList: typeof import('./components/UI/Finance/Dues/DuesList.vue')['default']
     FormDataMenu: typeof import('./components/UI/AppManagement/Menu/FormDataMenu.vue')['default']
+    HistoryList: typeof import('./components/UI/Finance/CashBalance/HistoryList.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TinyMCE: typeof import('./components/common/TinyMCE.vue')['default']
     TipTap: typeof import('./components/common/TipTap.vue')['default']
     TipTapSimple: typeof import('./components/common/TipTapSimple.vue')['default']
+    UploadProofDialog: typeof import('./components/UI/Finance/Dues/UploadProofDialog.vue')['default']
   }
 }
