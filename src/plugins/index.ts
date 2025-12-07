@@ -17,9 +17,9 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import type { App } from 'vue'
 
 export function registerPlugins (app: App) {
-  // Check if APM is enabled
-  const apmServerUrl = import.meta.env.VITE_APP_APM_SERVER_URL;
-  const apmEnabled = apmServerUrl && apmServerUrl !== 'undefined' && apmServerUrl !== '';
+  const apmServerUrl = (window.__ENV__?.VITE_APP_APM_SERVER_URL ?? import.meta.env.VITE_APP_APM_SERVER_URL) as string;
+  const apmActiveFlag = ((window.__ENV__?.VITE_APP_APM_ACTIVE ?? import.meta.env.VITE_APP_APM_ACTIVE) ?? '').toString().toLowerCase();
+  const apmEnabled = (apmActiveFlag === 'true' || apmActiveFlag === '1') && apmServerUrl && apmServerUrl !== 'undefined' && apmServerUrl !== '';
 
   app
     .use(vuetify)
