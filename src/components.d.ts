@@ -17,6 +17,7 @@ declare module 'vue' {
     DialogFormRole: typeof import('./components/UI/AppManagement/Role/DialogFormRole.vue')['default']
     DialogFormRoleMenu: typeof import('./components/UI/AppManagement/RoleMenu/DialogFormRoleMenu.vue')['default']
     DialogFormUser: typeof import('./components/UI/AppManagement/User/DialogFormUser.vue')['default']
+    DialogImportMember: typeof import('./components/UI/Setting/Member/DialogImportMember.vue')['default']
     DialogRoleSelection: typeof import('./components/UI/Setting/Member/DialogRoleSelection.vue')['default']
     DialogStructureMenu: typeof import('./components/UI/AppManagement/Menu/DialogStructureMenu.vue')['default']
     DuesList: typeof import('./components/UI/Finance/Dues/DuesList.vue')['default']

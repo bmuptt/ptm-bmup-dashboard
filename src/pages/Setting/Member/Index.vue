@@ -53,6 +53,30 @@
         >
           Add
         </v-btn>
+        <v-btn
+          v-if="permission?.create"
+          color="success"
+          variant="outlined"
+          density="compact"
+          class="mt-2 mr-2 text-none"
+          prepend-icon="mdi-file-excel"
+          :loading="resultLoading"
+          @click="openImportDialog"
+        >
+          Import
+        </v-btn>
+        <v-btn
+          v-if="permission?.create"
+          color="secondary"
+          variant="outlined"
+          density="compact"
+          class="mt-2 text-none"
+          prepend-icon="mdi-download"
+          :loading="resultLoading"
+          @click="downloadTemplate"
+        >
+          Download Template
+        </v-btn>
       </v-col>
     </v-row>
 
@@ -147,6 +171,19 @@
         @refresh-page="refreshPage"
       />
     </v-dialog>
+
+    <v-dialog
+      v-model="statusImportDialog"
+      max-width="600"
+      persistent
+      scrollable
+    >
+      <dialog-import-member
+        v-if="statusImportDialog"
+        v-model="statusImportDialog"
+        @refresh-page="refreshPage"
+      />
+    </v-dialog>
   </div>
 </template>
 
@@ -157,6 +194,7 @@ import { useLoadingComponent } from '@/utils/loading';
 import { useDisplay } from 'vuetify';
 import DialogForm from '../../../components/UI/Setting/Member/DialogFormMember.vue';
 import DialogCreateUser from '../../../components/UI/Setting/Member/DialogCreateUser.vue';
+import DialogImportMember from '../../../components/UI/Setting/Member/DialogImportMember.vue';
 import type { IDefaultParams } from '@/model/utils-interface';
 import { useTable } from '@/utils/setting/member/list';
 import type { IResPermission } from '@/model/auth-interface';
@@ -182,6 +220,9 @@ const statusDialogForm = ref(false);
 // create user dialog
 const selectedMemberForUser = ref<IResponseMember | null>(null);
 const statusCreateUserDialog = ref(false);
+
+// import dialog
+const statusImportDialog = ref(false);
 
 // params
 const stateParams = reactive<IDefaultParams & { active?: string }>({
@@ -240,6 +281,19 @@ const openCreateUserDialog = (data: IResponseMember) => {
 const closeCreateUserDialog = () => {
   statusCreateUserDialog.value = false;
   selectedMemberForUser.value = null;
+};
+
+const openImportDialog = () => {
+  statusImportDialog.value = true;
+};
+
+const downloadTemplate = () => {
+  const link = document.createElement('a');
+  link.href = '/template/Member_Import_Template.xlsx';
+  link.download = 'Member_Import_Template.xlsx';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
 
 const fetchData = async () => {

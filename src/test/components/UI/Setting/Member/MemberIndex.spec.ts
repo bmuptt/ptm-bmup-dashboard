@@ -210,6 +210,17 @@ describe('Member Index Component', () => {
     expect(addButton?.exists()).toBe(true);
   });
 
+  test('should show import and download template buttons when create is true', async () => {
+    wrapper = createWrapper();
+    await wrapper.vm.$nextTick();
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const buttons = wrapper.findAll('[data-testid="v-btn"]');
+    const importBtn = buttons.find(btn => btn.text().includes('Import'));
+    const downloadBtn = buttons.find(btn => btn.text().includes('Download Template'));
+    expect(importBtn?.exists()).toBe(true);
+    expect(downloadBtn?.exists()).toBe(true);
+  });
+
   test('should hide add button when permission create is false', async () => {
     // Mock permission with create false
     vi.mocked(getPermission).mockResolvedValue({
@@ -239,6 +250,10 @@ describe('Member Index Component', () => {
     const buttons = wrapper.findAll('[data-testid="v-btn"]');
     const addButton = buttons.find(btn => btn.text().includes('Add'));
     expect(addButton).toBeUndefined();
+    const importBtn = buttons.find(btn => btn.text().includes('Import'));
+    const downloadBtn = buttons.find(btn => btn.text().includes('Download Template'));
+    expect(importBtn).toBeUndefined();
+    expect(downloadBtn).toBeUndefined();
   });
 
   test('should call list service on mount', () => {

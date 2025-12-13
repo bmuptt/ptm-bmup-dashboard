@@ -61,3 +61,14 @@ export function createUser(id: number, data: IRequestCreateUser) {
     data,
   });
 }
+
+export function importExcel(data: FormData) {
+  return apiMaster({
+    url: `${basePath}/import-excel`,
+    method: 'POST',
+    data,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+}
