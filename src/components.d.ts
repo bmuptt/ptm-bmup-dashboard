@@ -23,6 +23,7 @@ declare module 'vue' {
     DuesList: typeof import('./components/UI/Finance/Dues/DuesList.vue')['default']
     FormDataMenu: typeof import('./components/UI/AppManagement/Menu/FormDataMenu.vue')['default']
     HistoryList: typeof import('./components/UI/Finance/CashBalance/HistoryList.vue')['default']
+    ImportDuesDialog: typeof import('./components/UI/Finance/Dues/ImportDuesDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TinyMCE: typeof import('./components/common/TinyMCE.vue')['default']

@@ -19,7 +19,7 @@
       <v-row align="center">
         <v-col
           cols="12"
-          sm="3"
+          md="3"
         >
           <v-select
             v-model="periodYear"
@@ -33,7 +33,7 @@
         </v-col>
         <v-col
           cols="12"
-          sm="5"
+          md="5"
         >
           <v-text-field
             v-model="searchInput"
@@ -50,9 +50,21 @@
         </v-col>
         <v-col
           cols="12"
-          sm="4"
+          md="4"
           class="d-flex gap-2 justify-end"
         >
+          <v-btn
+            v-if="permission?.create"
+            color="primary"
+            prepend-icon="mdi-upload"
+            :loading="resultLoading"
+            :disabled="resultLoading"
+            variant="outlined"
+            class="text-none"
+            @click="statusImportDialog = true"
+          >
+            Import
+          </v-btn>
           <v-btn
             v-if="permission?.access"
             color="success"
@@ -60,7 +72,7 @@
             :loading="resultLoading"
             :disabled="resultLoading"
             variant="outlined"
-            class="text-none"
+            class="text-none ml-2"
             @click="handleExport('excel')"
           >
             Excel
@@ -87,6 +99,20 @@
       :search="search"
       :can-update="permission?.update"
     />
+
+    <v-dialog
+      v-model="statusImportDialog"
+      max-width="600"
+      persistent
+      scrollable
+    >
+      <ImportDuesDialog
+        v-if="statusImportDialog"
+        v-model="statusImportDialog"
+        :default-year="periodYear"
+        @success="refreshList()"
+      />
+    </v-dialog>
   </v-container>
 </template>
 
@@ -97,6 +123,7 @@ import { fetchAllMembershipDues, exportToExcel, exportToPDF } from '@/utils/fina
 import { useLoadingComponent } from '@/utils/loading';
 import type { IResPermission } from '@/model/auth-interface';
 import { getPermission } from '@/service/auth';
+import ImportDuesDialog from '@/components/UI/Finance/Dues/ImportDuesDialog.vue';
 
 const periodYear = ref(new Date().getFullYear());
 const search = ref('');
@@ -104,6 +131,7 @@ const searchInput = ref('');
 const duesListRef = ref<InstanceType<typeof DuesList> | null>(null);
 const { loading, resultLoading } = useLoadingComponent();
 const permission = ref<IResPermission | null>(null);
+const statusImportDialog = ref(false);
 
 const availableYears = computed(() => {
   const currentYear = new Date().getFullYear();
@@ -130,6 +158,10 @@ async function handleExport(type: 'excel' | 'pdf') {
   } finally {
     loading.submit = false;
   }
+}
+
+function refreshList() {
+  duesListRef.value?.fetchPage?.(1, true);
 }
 
 const fetchPermission = () => {

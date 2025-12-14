@@ -178,3 +178,40 @@ export interface IMembershipDuesDetailResponse {
   message?: string;
   data: IMembershipDuesDetailData;
 }
+
+// Import Membership Dues
+export interface IImportMembershipDuesSummary {
+  total_rows: number;
+  processed_rows: number;
+  success_rows: number;
+  failed_rows: number;
+}
+
+export interface IImportMembershipDuesChange {
+  member_id: number;
+  period_year: number;
+  period_month: number;
+  action: 'create' | 'delete' | 'skip';
+  amount: number;
+  reason?: string;
+}
+
+export interface IImportMembershipDuesItemSummary {
+  member_id: number;
+  member_name: string;
+  processed: number;
+  success: number;
+  failed: number;
+  errors: string[];
+  changes: IImportMembershipDuesChange[];
+}
+
+export interface IImportMembershipDuesData {
+  summary: IImportMembershipDuesSummary;
+  items: IImportMembershipDuesItemSummary[];
+}
+
+export interface IImportMembershipDuesResponse {
+  success: boolean;
+  data: IImportMembershipDuesData;
+}

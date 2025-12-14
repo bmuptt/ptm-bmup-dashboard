@@ -7,6 +7,7 @@ import type {
   IMembershipDuesDetailResponse,
 } from '@/model/finance-interface';
 import { apiFinance } from '../apiFinance';
+import type { IImportMembershipDuesResponse } from '@/model/finance-interface';
 
 const basePath = 'finance/dues';
 
@@ -55,5 +56,18 @@ export function getMembershipDuesDetail(id: number) {
   return apiFinance<IMembershipDuesDetailResponse>({
     url: `${basePath}/${id}`,
     method: 'GET',
+  });
+}
+
+export function importMembershipDues(period_year: number, file: File) {
+  const formData = new FormData();
+  formData.append('period_year', String(period_year));
+  formData.append('file', file);
+
+  return apiFinance<IImportMembershipDuesResponse>({
+    url: `${basePath}/import`,
+    method: 'POST',
+    data: formData,
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
 }
