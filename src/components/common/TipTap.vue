@@ -223,9 +223,7 @@
 <script setup lang="ts">
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
-import Link from '@tiptap/extension-link';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 
@@ -289,13 +287,13 @@ const setColor = (color: string) => {
 const editor = useEditor({
   content: props.modelValue || "<p>Start typing...</p>",
   extensions: [
-    StarterKit,
-    Underline,
+    StarterKit.configure({
+      link: {
+        openOnClick: false,
+      },
+    }),
     TextAlign.configure({
       types: ['heading', 'paragraph'],
-    }),
-    Link.configure({
-      openOnClick: false,
     }),
     TextStyle,
     Color,

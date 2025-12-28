@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, afterEach, beforeEach } from 'vitest';
-import { mount, VueWrapper } from '@vue/test-utils';
+import { mount, VueWrapper, flushPromises } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
@@ -128,7 +128,7 @@ describe('DialogFormMember Component', () => {
     });
 
     await wrapper.vm.$nextTick();
-    await new Promise(resolve => setTimeout(resolve, 100)); // Wait for detail API call
+    await flushPromises(); // Wait for detail API call
 
     expect(wrapper.find('.font-24').text()).toBe('Form Member');
     expect(detail).toHaveBeenCalledWith(1);
@@ -200,11 +200,12 @@ describe('DialogFormMember Component', () => {
     });
 
     await wrapper.vm.$nextTick();
-    await new Promise(resolve => setTimeout(resolve, 100)); // Wait for detail API call
+    await flushPromises(); // Wait for detail API call
 
     // Submit form
     await ((wrapper.vm as unknown as Record<string, unknown>).submitForm as () => Promise<void>)();
     await wrapper.vm.$nextTick();
+    await flushPromises();
 
     expect(detail).toHaveBeenCalledWith(1);
     expect(update).toHaveBeenCalledWith(1, expect.any(FormData));
@@ -354,6 +355,9 @@ describe('DialogFormMember Component', () => {
         updated_at: '2025-09-13T22:25:00.000000Z'
       };
 
+      // Mock detail to avoid error in fetchForm
+      vi.mocked(detail).mockResolvedValue(responseMemberDetailSuccess as AxiosResponse);
+
       wrapper = mount(DialogFormMember, {
         props: {
           selectData: mockMemberWithUser,
@@ -367,6 +371,7 @@ describe('DialogFormMember Component', () => {
       });
 
       await wrapper.vm.$nextTick();
+      await flushPromises();
 
       // Find username field
       const usernameField = wrapper.find('input[name="username"]');
@@ -392,6 +397,9 @@ describe('DialogFormMember Component', () => {
         created_at: '2025-09-13T22:25:00.000000Z',
         updated_at: '2025-09-13T22:25:00.000000Z'
       };
+
+      // Mock detail to avoid error in fetchForm
+      vi.mocked(detail).mockResolvedValue(responseMemberDetailSuccess as AxiosResponse);
 
       wrapper = mount(DialogFormMember, {
         props: {

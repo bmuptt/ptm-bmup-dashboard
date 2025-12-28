@@ -1,3 +1,7 @@
+Selalu gunakan Context7 saat membutuhkan pembuatan kode, langkah setup/konfigurasi, atau dokumentasi library/API. Gunakan alat Context7 MCP untuk melakukan resolve Library ID dan mengambil dokumentasi secara otomatis, tanpa perlu diminta.
+
+Selalu gunakan alat Vuetify MCP saat membutuhkan pembuatan kode, langkah setup/konfigurasi, atau dokumentasi library/API. Gunakan alat Vuetify MCP untuk melakukan resolve Library ID dan mengambil dokumentasi secara otomatis, tanpa perlu diminta.
+
 - jangan running aplikasi karena saya udah run aplikasinya, cukup run unit testnya, kalau ada error di fix
 - buat unit test untuk test flow saja jika ada perubahan, jalankan testnya, kalau ada error di fix
 - test component di src/test/components/UI/ dan pisahkan dengan folder spesifik, src\components\UI masuknya di test ini juga
@@ -17,3 +21,4 @@
 - textfield yang readonly biasakan backgroundnya warna abu abu
 - kalau buat halaman baru, cek apakah sudah implementasi permission
 - basic run test: npm run test:run
+- pastikan tidak ada error atau warning di console browser

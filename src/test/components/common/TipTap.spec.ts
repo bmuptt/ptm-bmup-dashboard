@@ -88,7 +88,10 @@ vi.mock('@tiptap/vue-3', () => ({
 }));
 
 vi.mock('@tiptap/starter-kit', () => ({
-  default: {}
+  __esModule: true,
+  default: {
+    configure: () => ({ name: 'starterKit' }),
+  },
 }));
 vi.mock('@tiptap/extension-text-align', () => ({
   __esModule: true,

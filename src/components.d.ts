@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AboutSectionForm: typeof import('./components/UI/Setting/Landing/AboutSectionForm.vue')['default']
     ConfirmDialog: typeof import('./components/common/ConfirmDialog.vue')['default']
     DatePicker: typeof import('./components/common/DatePicker.vue')['default']
     DialogAddMenu: typeof import('./components/UI/AppManagement/Menu/DialogAddMenu.vue')['default']
@@ -23,6 +24,7 @@ declare module 'vue' {
     DuesList: typeof import('./components/UI/Finance/Dues/DuesList.vue')['default']
     FormDataMenu: typeof import('./components/UI/AppManagement/Menu/FormDataMenu.vue')['default']
     HistoryList: typeof import('./components/UI/Finance/CashBalance/HistoryList.vue')['default']
+    HomeSectionForm: typeof import('./components/UI/Setting/Landing/HomeSectionForm.vue')['default']
     ImportDuesDialog: typeof import('./components/UI/Finance/Dues/ImportDuesDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

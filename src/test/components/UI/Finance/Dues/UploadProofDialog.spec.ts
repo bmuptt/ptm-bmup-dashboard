@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { mount, type VueWrapper } from '@vue/test-utils';
+import { mount, flushPromises, type VueWrapper } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
@@ -163,7 +163,7 @@ describe('UploadProofDialog Component', () => {
     vi.mocked(getMembershipDuesDetail).mockResolvedValue(mockAxiosResponseDetail('http://example.com/proof.png'));
     wrapper = createWrapper();
     // After mount, dialog is open; wait for async detail fetch
-    await new Promise((r) => setTimeout(r, 0));
+    await flushPromises();
     const src = (wrapper.vm as unknown as Record<string, unknown>).previewSrc as unknown as string | null;
     expect(getMembershipDuesDetail).toHaveBeenCalledWith(123);
     expect(src).toBe('http://example.com/proof.png');
@@ -172,7 +172,7 @@ describe('UploadProofDialog Component', () => {
   test('fetches detail on open and sets pdf preview', async () => {
     vi.mocked(getMembershipDuesDetail).mockResolvedValue(mockAxiosResponseDetail('http://example.com/proof.PDF'));
     wrapper = createWrapper();
-    await new Promise((r) => setTimeout(r, 0));
+    await flushPromises();
     const src = (wrapper.vm as unknown as Record<string, unknown>).previewSrc as unknown as string | null;
     expect(getMembershipDuesDetail).toHaveBeenCalledWith(123);
     expect(src).toBe('pdf');
@@ -181,7 +181,7 @@ describe('UploadProofDialog Component', () => {
   test('shows fallback image when no proof path', async () => {
     vi.mocked(getMembershipDuesDetail).mockResolvedValue(mockAxiosResponseDetail(null));
     wrapper = createWrapper();
-    await new Promise((r) => setTimeout(r, 0));
+    await flushPromises();
     const src = (wrapper.vm as unknown as Record<string, unknown>).previewSrc as unknown as string | null;
     expect(getMembershipDuesDetail).toHaveBeenCalledWith(123);
     expect(src).toBe('/static/img/no_image.png');
