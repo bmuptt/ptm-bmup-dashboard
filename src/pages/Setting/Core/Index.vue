@@ -15,10 +15,10 @@
       >
         <v-card
           class="pa-6"
-          :loading="loading.data"
+          :loading="resultLoading"
         >
           <v-form
-            :disabled="loading.data"
+            :disabled="resultLoading"
             @submit.prevent="handleSubmit"
           >
             <v-row>
@@ -169,8 +169,8 @@
                   v-if="permission?.update"
                   type="submit"
                   color="primary"
-                  :loading="loading.submit"
-                  :disabled="v$.$invalid"
+                  :loading="resultLoading"
+                  :disabled="v$.$invalid || resultLoading"
                 >
                   Update Core Setting
                 </v-btn>
@@ -201,7 +201,7 @@ const appStore = useAppStore();
 const permission = ref<IResPermission | null>(null);
 
 // loading
-const { loading } = useLoadingComponent();
+const { loading, resultLoading } = useLoadingComponent();
 
 // data
 const state = reactive({
@@ -219,7 +219,7 @@ const state = reactive({
 const v$ = useVuelidate(rules, state);
 
 const currentLogo = ref<string>('');
-const fileInputRef = ref();
+const fileInputRef = ref<HTMLInputElement | null>(null);
 
 
 
@@ -230,21 +230,26 @@ const openFileInput = () => {
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
+    if (currentLogo.value && currentLogo.value.startsWith('blob:')) {
+      URL.revokeObjectURL(currentLogo.value);
+    }
     state.logo = target.files[0];
     state.status_logo = '1';
-    // Create preview URL
     currentLogo.value = URL.createObjectURL(target.files[0]);
   }
+  target.value = '';
 };
 
 const deleteLogo = () => {
   state.logo = null;
   state.status_logo = '1';
-  // Clean up object URL if exists
   if (currentLogo.value && currentLogo.value.startsWith('blob:')) {
     URL.revokeObjectURL(currentLogo.value);
   }
   currentLogo.value = '';
+  if (fileInputRef.value) {
+    fileInputRef.value.value = '';
+  }
 };
 
 const fetchData = () => {

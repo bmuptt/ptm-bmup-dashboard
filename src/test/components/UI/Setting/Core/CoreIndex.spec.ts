@@ -44,6 +44,7 @@ vi.mock('@/utils/loading', () => ({
       data: false,
       submit: false,
     },
+    resultLoading: false,
   }),
 }));
 
@@ -295,11 +296,13 @@ describe('Core Setting Index Component', () => {
     
     // Simulate file change
     const component = wrapper.vm as unknown as Record<string, unknown>;
-    (component.handleFileChange as (event: { target: { files: File[] } }) => void)({ target: { files: [file] } });
+    const eventTarget = { files: [file], value: 'C:\\fakepath\\test.jpg' };
+    (component.handleFileChange as (event: { target: { files: File[]; value: string } }) => void)({ target: eventTarget });
     
     // Check if file is set in component state
     expect((component.state as Record<string, unknown>).logo).toBe(file);
     expect((component.state as Record<string, unknown>).status_logo).toBe('1');
+    expect(eventTarget.value).toBe('');
   });
 
   test('should handle logo deletion', async () => {
@@ -317,6 +320,30 @@ describe('Core Setting Index Component', () => {
     expect((component.state as Record<string, unknown>).logo).toBe(null);
     expect((component.state as Record<string, unknown>).status_logo).toBe('1');
     expect(component.currentLogo).toBe('');
+  });
+
+  test('should allow re-uploading the same logo file after deletion', async () => {
+    wrapper = createWrapper();
+
+    const component = wrapper.vm as unknown as Record<string, unknown>;
+    const file = new File(['test'], 'logo.jpg', { type: 'image/jpeg' });
+
+    const firstTarget = { files: [file], value: 'C:\\fakepath\\logo.jpg' };
+    (component.handleFileChange as (event: { target: { files: File[]; value: string } }) => void)({ target: firstTarget });
+
+    expect(component.currentLogo).toBe('blob:test-url');
+    expect(firstTarget.value).toBe('');
+
+    (component.deleteLogo as () => void)();
+    expect(component.currentLogo).toBe('');
+
+    const secondTarget = { files: [file], value: 'C:\\fakepath\\logo.jpg' };
+    (component.handleFileChange as (event: { target: { files: File[]; value: string } }) => void)({ target: secondTarget });
+
+    expect(component.currentLogo).toBe('blob:test-url');
+    expect(secondTarget.value).toBe('');
+    expect((component.state as Record<string, unknown>).logo).toBe(file);
+    expect((component.state as Record<string, unknown>).status_logo).toBe('1');
   });
 
   test('should validate form fields', async () => {

@@ -251,7 +251,7 @@ const v$ = useVuelidate(rules, state);
 
 // photo handling
 const currentPhoto = ref<string>('');
-const fileInputRef = ref<HTMLInputElement>();
+const fileInputRef = ref<HTMLInputElement | null>(null);
 
 // computed
 const isUsernameReadonly = computed(() => {
@@ -269,40 +269,49 @@ const openFileInput = () => {
   fileInputRef.value?.click();
 };
 
-       const handleFileChange = (event: Event) => {
-         const target = event.target as HTMLInputElement;
-         if (target.files && target.files[0]) {
-           const file = target.files[0];
-           
-           // Validate file type
-           const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
-           if (!allowedTypes.includes(file.type)) {
-             console.error('Invalid file type. Only JPEG, PNG, JPG, GIF are allowed.');
-             return;
-           }
-           
-           // Validate file size (2MB = 2048KB)
-           const maxSize = 2 * 1024 * 1024; // 2MB in bytes
-           if (file.size > maxSize) {
-             console.error('File size too large. Maximum size is 2MB.');
-             return;
-           }
-           
-           state.photo = file;
-           state.status_photo = '1';
-           // Create preview URL
-           currentPhoto.value = URL.createObjectURL(file);
-         }
-       };
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files && target.files[0] ? target.files[0] : null;
+
+  if (!file) {
+    target.value = '';
+    return;
+  }
+
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+  if (!allowedTypes.includes(file.type)) {
+    console.error('Invalid file type. Only JPEG, PNG, JPG, GIF are allowed.');
+    target.value = '';
+    return;
+  }
+
+  const maxSize = 2 * 1024 * 1024;
+  if (file.size > maxSize) {
+    console.error('File size too large. Maximum size is 2MB.');
+    target.value = '';
+    return;
+  }
+
+  if (currentPhoto.value && currentPhoto.value.startsWith('blob:')) {
+    URL.revokeObjectURL(currentPhoto.value);
+  }
+
+  state.photo = file;
+  state.status_photo = '1';
+  currentPhoto.value = URL.createObjectURL(file);
+  target.value = '';
+};
 
 const deletePhoto = () => {
   state.photo = null;
   state.status_photo = '1';
-  // Clean up object URL if exists
   if (currentPhoto.value && currentPhoto.value.startsWith('blob:')) {
     URL.revokeObjectURL(currentPhoto.value);
   }
   currentPhoto.value = '';
+  if (fileInputRef.value) {
+    fileInputRef.value.value = '';
+  }
 };
 
 const submitForm = () => {
@@ -384,6 +393,9 @@ const fetchForm = () => {
         state.phone = data.data.phone;
         state.active = data.data.active;
         state.status_photo = '0';
+        if (currentPhoto.value && currentPhoto.value.startsWith('blob:')) {
+          URL.revokeObjectURL(currentPhoto.value);
+        }
         currentPhoto.value = data.data.photo || '';
       })
       .catch((error) => {
@@ -404,6 +416,9 @@ const fetchForm = () => {
     state.status_photo = '0';
     state.active = true;
     currentPhoto.value = '';
+    if (fileInputRef.value) {
+      fileInputRef.value.value = '';
+    }
   }
 };
 

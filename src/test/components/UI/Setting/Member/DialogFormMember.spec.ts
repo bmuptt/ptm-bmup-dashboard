@@ -293,6 +293,114 @@ describe('DialogFormMember Component', () => {
     expect(wrapper.emitted('closeDialog')).toBeTruthy();
   });
 
+  describe('Photo Upload Functionality', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    test('should handle photo upload and reset input value', async () => {
+      wrapper = mount(DialogFormMember, {
+        props: {
+          selectData: null,
+        },
+        global: {
+          plugins: [vuetify],
+          provide: {
+            $swal: mockSwal,
+          },
+        },
+      });
+
+      const component = wrapper.vm as unknown as Record<string, unknown>;
+      const file = new File(['test'], 'photo.jpg', { type: 'image/jpeg' });
+
+      const target = { files: [file], value: 'C:\\fakepath\\photo.jpg' };
+      (component.handleFileChange as (event: { target: { files: File[]; value: string } }) => void)({ target });
+
+      expect((component.state as Record<string, unknown>).photo).toBe(file);
+      expect((component.state as Record<string, unknown>).status_photo).toBe('1');
+      expect(component.currentPhoto).toBe('blob:mock-url');
+      expect(target.value).toBe('');
+    });
+
+    test('should reset file input ref value when deleting photo', async () => {
+      wrapper = mount(DialogFormMember, {
+        props: {
+          selectData: null,
+        },
+        global: {
+          plugins: [vuetify],
+          provide: {
+            $swal: mockSwal,
+          },
+        },
+      });
+
+      const component = wrapper.vm as unknown as Record<string, unknown>;
+
+      const inputEl = document.createElement('input');
+      inputEl.type = 'file';
+      Object.defineProperty(inputEl, 'value', {
+        value: 'C:\\fakepath\\photo.jpg',
+        writable: true,
+      });
+
+      component.fileInputRef = inputEl;
+      component.currentPhoto = 'blob:mock-url';
+      (component.state as Record<string, unknown>).photo = new File(['test'], 'photo.jpg', { type: 'image/jpeg' });
+
+      (component.deletePhoto as () => void)();
+
+      expect((component.state as Record<string, unknown>).photo).toBe(null);
+      expect((component.state as Record<string, unknown>).status_photo).toBe('1');
+      expect(component.currentPhoto).toBe('');
+      expect(inputEl.value).toBe('');
+      expect(global.URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
+    });
+
+    test('should allow re-uploading the same photo file after deletion', async () => {
+      wrapper = mount(DialogFormMember, {
+        props: {
+          selectData: null,
+        },
+        global: {
+          plugins: [vuetify],
+          provide: {
+            $swal: mockSwal,
+          },
+        },
+      });
+
+      const component = wrapper.vm as unknown as Record<string, unknown>;
+      const file = new File(['test'], 'photo.jpg', { type: 'image/jpeg' });
+
+      const firstTarget = { files: [file], value: 'C:\\fakepath\\photo.jpg' };
+      (component.handleFileChange as (event: { target: { files: File[]; value: string } }) => void)({ target: firstTarget });
+      expect(component.currentPhoto).toBe('blob:mock-url');
+      expect(firstTarget.value).toBe('');
+
+      const inputEl = document.createElement('input');
+      inputEl.type = 'file';
+      Object.defineProperty(inputEl, 'value', {
+        value: 'C:\\fakepath\\photo.jpg',
+        writable: true,
+      });
+      component.fileInputRef = inputEl;
+
+      (component.deletePhoto as () => void)();
+      expect(component.currentPhoto).toBe('');
+      expect(inputEl.value).toBe('');
+
+      const secondTarget = { files: [file], value: 'C:\\fakepath\\photo.jpg' };
+      (component.handleFileChange as (event: { target: { files: File[]; value: string } }) => void)({ target: secondTarget });
+
+      expect(component.currentPhoto).toBe('blob:mock-url');
+      expect(secondTarget.value).toBe('');
+      expect((component.state as Record<string, unknown>).photo).toBe(file);
+      expect((component.state as Record<string, unknown>).status_photo).toBe('1');
+    });
+  });
+
   // Service Layer Tests
   describe('Member Service', () => {
     test('should get member detail successfully', async () => {
