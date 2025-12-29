@@ -32,5 +32,13 @@ export const settingRoutes = {
       },
       component: () => import('@/pages/Setting/Landing/Index.vue'),
     },
+    {
+      path: 'activities',
+      name: 'activities',
+      meta: {
+        label: 'Activities',
+      },
+      component: () => import('@/pages/Setting/Activities/Index.vue'),
+    },
   ],
 };

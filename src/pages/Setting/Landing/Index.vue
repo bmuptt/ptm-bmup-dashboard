@@ -237,4 +237,3 @@ const handleSubmit = () => {
 fetchPermission();
 fetchSections();
 </script>
-
