@@ -8,11 +8,13 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AboutSectionForm: typeof import('./components/UI/Setting/Landing/AboutSectionForm.vue')['default']
+    AboutTimelinesManager: typeof import('./components/UI/Setting/Landing/AboutTimelines/AboutTimelinesManager.vue')['default']
     ActivitiesManager: typeof import('./components/UI/Setting/Landing/Activities/ActivitiesManager.vue')['default']
     ConfirmDialog: typeof import('./components/common/ConfirmDialog.vue')['default']
     DatePicker: typeof import('./components/common/DatePicker.vue')['default']
     DialogAddMenu: typeof import('./components/UI/AppManagement/Menu/DialogAddMenu.vue')['default']
     DialogCreateUser: typeof import('./components/UI/Setting/Member/DialogCreateUser.vue')['default']
+    DialogFormAboutTimeline: typeof import('./components/UI/Setting/Landing/AboutTimelines/DialogFormAboutTimeline.vue')['default']
     DialogFormActivity: typeof import('./components/UI/Setting/Landing/Activities/DialogFormActivity.vue')['default']
     DialogFormHeader: typeof import('./components/UI/AppManagement/Menu/DialogFormHeader.vue')['default']
     DialogFormMember: typeof import('./components/UI/Setting/Member/DialogFormMember.vue')['default']

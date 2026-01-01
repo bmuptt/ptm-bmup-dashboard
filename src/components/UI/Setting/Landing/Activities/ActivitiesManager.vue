@@ -48,7 +48,78 @@
             </v-col>
           </v-row>
 
+          <v-data-table
+            v-if="smAndDown"
+            class="mt-2"
+            :headers="headersMobile"
+            :items="items"
+            item-value="id"
+            density="compact"
+            hover
+            no-data-text="No Data"
+            :loading="resultLoading"
+            :mobile="smAndDown"
+            :hide-default-header="smAndDown"
+            hide-default-footer
+          >
+            <template #[`item.actions`]="{ item }">
+              <v-menu v-if="permission?.update || permission?.delete">
+                <template #activator="{ props: menuProps }">
+                  <v-btn
+                    data-testid="activity-action-btn"
+                    density="compact"
+                    :loading="resultLoading"
+                    v-bind="menuProps"
+                  >
+                    Action
+                  </v-btn>
+                </template>
+                <v-list>
+                  <v-list-item
+                    v-if="permission?.update"
+                    link
+                    @click="openDialogForm(getRawActivity(item))"
+                  >
+                    <v-list-item-title>Edit</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item
+                    v-if="permission?.delete"
+                    link
+                    @click="confirmDelete(getRawActivity(item).id)"
+                  >
+                    <v-list-item-title>Delete</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+
+            <template #[`item.icon`]="{ item }">
+              <div class="d-flex align-center ga-2">
+                <v-icon :icon="getRawActivity(item).icon?.name || 'mdi-help-circle-outline'" />
+                <div>
+                  <div class="font-weight-medium">
+                    {{ getRawActivity(item).icon?.label || '-' }}
+                  </div>
+                  <div class="text-caption text-medium-emphasis">
+                    {{ getRawActivity(item).icon?.name || '-' }}
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <template #[`item.is_published`]="{ item }">
+              <v-chip
+                size="small"
+                :color="getRawActivity(item).is_published ? 'success' : 'grey'"
+                variant="tonal"
+              >
+                {{ getRawActivity(item).is_published ? 'Yes' : 'No' }}
+              </v-chip>
+            </template>
+          </v-data-table>
+
           <v-table
+            v-else
             hover
             density="compact"
             class="mt-2"
@@ -226,6 +297,7 @@ import { useLoadingComponent } from '@/utils/loading';
 import { useConfirmDialog } from '@/utils/confirm-dialog';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import DialogFormActivity from '@/components/UI/Setting/Landing/Activities/DialogFormActivity.vue';
+import { useDisplay } from 'vuetify';
 
 const swal = inject('$swal') as typeof import('sweetalert2').default;
 
@@ -233,11 +305,21 @@ defineProps<{
   permission: IResPermission | null;
 }>();
 
+const { smAndDown } = useDisplay();
+
 const { loading, resultLoading } = useLoadingComponent();
 const { showDialog, dialogOptions, showConfirm, handleConfirm, handleCancel } = useConfirmDialog();
 
 const items = ref<ILandingActivity[]>([]);
 const icons = ref<ILandingIcon[]>([]);
+
+const headersMobile = [
+  { title: 'Actions', key: 'actions', sortable: false, width: 120 },
+  { title: 'Icon', key: 'icon', sortable: false, width: 220 },
+  { title: 'Title', key: 'title', sortable: false, minWidth: 220 },
+  { title: 'Subtitle', key: 'subtitle', sortable: false, minWidth: 340 },
+  { title: 'Published', key: 'is_published', sortable: false, width: 120 },
+];
 
 const selectData = ref<ILandingActivity | null>(null);
 const statusDialogForm = ref(false);
@@ -249,6 +331,11 @@ const closeDialogForm = () => {
 const openDialogForm = (data: ILandingActivity | null) => {
   selectData.value = data;
   statusDialogForm.value = true;
+};
+
+const getRawActivity = (item: unknown): ILandingActivity => {
+  const maybeWrapped = item as { raw?: ILandingActivity };
+  return maybeWrapped.raw ?? (item as ILandingActivity);
 };
 
 const fetchIcons = () => {

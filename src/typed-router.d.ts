@@ -27,6 +27,7 @@ declare module 'vue-router/auto-routes' {
     '/Home': RouteRecordInfo<'/Home', '/Home', Record<never, never>, Record<never, never>>,
     '/Login': RouteRecordInfo<'/Login', '/Login', Record<never, never>, Record<never, never>>,
     '/NotFound': RouteRecordInfo<'/NotFound', '/NotFound', Record<never, never>, Record<never, never>>,
+    '/Setting/AboutTimelines/Index': RouteRecordInfo<'/Setting/AboutTimelines/Index', '/Setting/AboutTimelines/Index', Record<never, never>, Record<never, never>>,
     '/Setting/Activities/Index': RouteRecordInfo<'/Setting/Activities/Index', '/Setting/Activities/Index', Record<never, never>, Record<never, never>>,
     '/Setting/Core/Index': RouteRecordInfo<'/Setting/Core/Index', '/Setting/Core/Index', Record<never, never>, Record<never, never>>,
     '/Setting/Landing/Index': RouteRecordInfo<'/Setting/Landing/Index', '/Setting/Landing/Index', Record<never, never>, Record<never, never>>,

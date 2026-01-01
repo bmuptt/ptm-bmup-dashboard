@@ -40,5 +40,13 @@ export const settingRoutes = {
       },
       component: () => import('@/pages/Setting/Activities/Index.vue'),
     },
+    {
+      path: 'about-timelines',
+      name: 'abouttimelines',
+      meta: {
+        label: 'About Timeline',
+      },
+      component: () => import('@/pages/Setting/AboutTimelines/Index.vue'),
+    },
   ],
 };

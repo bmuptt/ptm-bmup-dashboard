@@ -57,3 +57,8 @@ ATURAN WAJIB (dibaca sebelum mulai coding)
 
 11) Browser Console
 - Pastikan tidak ada error atau warning di console browser akibat perubahan.
+
+12) Table Mobile (Wajib)
+- Untuk table Vuetify (v-data-table / v-data-table-server), wajib perhatikan tampilan mobile.
+- Pattern wajib (lihat halaman Member/User): :mobile="smAndDown" dan :hide-default-header="smAndDown".
+- Jika memakai v-table, wajib buat alternatif tampilan mobile (smAndDown) yang setara/rapi.
