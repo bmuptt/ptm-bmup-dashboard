@@ -56,7 +56,101 @@
             </v-col>
           </v-row>
 
+          <div v-if="smAndDown">
+            <div
+              v-if="resultLoading"
+              class="mt-2"
+            >
+              <v-card
+                class="pa-4"
+                variant="outlined"
+              >
+                Loading...
+              </v-card>
+            </div>
+
+            <div
+              v-else-if="items.length === 0"
+              class="mt-2"
+            >
+              <v-card
+                class="pa-4"
+                variant="outlined"
+              >
+                No Data
+              </v-card>
+            </div>
+
+            <div
+              v-else
+              class="mt-2 d-flex flex-column ga-2"
+            >
+              <v-card
+                v-for="element in items"
+                :key="element.id"
+                variant="outlined"
+                class="pa-3"
+              >
+                <div class="d-flex align-start justify-space-between ga-2">
+                  <div style="min-width: 0">
+                    <div class="text-caption text-medium-emphasis">
+                      Year: {{ element.year ?? '-' }}
+                    </div>
+                    <div
+                      class="font-weight-medium"
+                      style="white-space: pre-line"
+                    >
+                      {{ element.title || '-' }}
+                    </div>
+                  </div>
+
+                  <v-menu v-if="permission?.update || permission?.delete">
+                    <template #activator="{ props: menuProps }">
+                      <v-btn
+                        data-testid="about-timeline-action-btn"
+                        density="compact"
+                        variant="text"
+                        icon="mdi-dots-vertical"
+                        :loading="resultLoading"
+                        :disabled="resultLoading"
+                        v-bind="menuProps"
+                      />
+                    </template>
+
+                    <v-list>
+                      <v-list-item
+                        v-if="permission?.update"
+                        link
+                        @click="openDialogForm(element)"
+                      >
+                        <v-list-item-title>Edit</v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        v-if="permission?.delete"
+                        link
+                        @click="confirmDelete(element.id)"
+                      >
+                        <v-list-item-title>Delete</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </div>
+
+                <div class="mt-3 d-flex align-center justify-space-between ga-2">
+                  <v-chip
+                    size="small"
+                    :color="element.is_published ? 'success' : 'grey'"
+                    variant="tonal"
+                  >
+                    {{ element.is_published ? 'Yes' : 'No' }}
+                  </v-chip>
+                </div>
+              </v-card>
+            </div>
+          </div>
+
           <v-data-table
+            v-else
             class="mt-2"
             :headers="headers"
             :items="items"
@@ -65,8 +159,6 @@
             hover
             no-data-text="No Data"
             :loading="resultLoading"
-            :mobile="smAndDown"
-            :hide-default-header="smAndDown"
             hide-default-footer
           >
             <template #[`item.actions`]="{ item }">
@@ -76,6 +168,7 @@
                     data-testid="about-timeline-action-btn"
                     density="compact"
                     :loading="resultLoading"
+                    :disabled="resultLoading"
                     v-bind="menuProps"
                   >
                     Action
@@ -99,6 +192,12 @@
                   </v-list-item>
                 </v-list>
               </v-menu>
+            </template>
+
+            <template #[`item.title`]="{ item }">
+              <div style="white-space: pre-line">
+                {{ getRawTimeline(item).title || '-' }}
+              </div>
             </template>
 
             <template #[`item.is_published`]="{ item }">

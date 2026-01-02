@@ -8,7 +8,7 @@
               <div class="d-flex flex-wrap ga-2">
                 <v-btn
                   v-if="permission?.create"
-                  data-testid="add-activity-btn"
+                  data-testid="add-about-team-member-btn"
                   color="primary"
                   density="compact"
                   class="text-none"
@@ -21,7 +21,7 @@
 
                 <v-btn
                   v-if="permission?.update && items.length >= 2"
-                  data-testid="update-sort-activity-btn"
+                  data-testid="update-sort-about-team-member-btn"
                   color="primary"
                   density="compact"
                   class="text-none"
@@ -33,18 +33,39 @@
                 </v-btn>
 
                 <v-btn
-                  data-testid="refresh-activity-btn"
+                  data-testid="refresh-about-team-member-btn"
                   variant="outlined"
                   color="primary"
                   density="compact"
                   class="text-none"
                   :loading="resultLoading"
                   :disabled="resultLoading"
-                  @click="fetchActivities"
+                  @click="fetchTeamMembers"
                 >
                   Refresh
                 </v-btn>
               </div>
+            </v-col>
+          </v-row>
+
+          <v-row class="mt-2">
+            <v-col
+              cols="12"
+              md="4"
+            >
+              <v-select
+                v-model="publishedFilter"
+                data-testid="published-filter"
+                density="compact"
+                variant="outlined"
+                label="Filter Published"
+                :items="publishedOptions"
+                item-title="title"
+                item-value="value"
+                hide-details
+                :disabled="resultLoading"
+                @update:model-value="fetchTeamMembers"
+              />
             </v-col>
           </v-row>
 
@@ -100,13 +121,13 @@
                           class="font-weight-medium"
                           style="white-space: pre-line"
                         >
-                          {{ element.title }}
+                          {{ element.member?.name || `Member ID: ${element.member_id}` }}
                         </div>
                         <div
                           class="text-caption text-medium-emphasis"
                           style="white-space: pre-line"
                         >
-                          {{ element.subtitle || '-' }}
+                          {{ element.member?.username || '-' }}
                         </div>
                       </div>
                     </div>
@@ -114,7 +135,7 @@
                     <v-menu v-if="permission?.update || permission?.delete">
                       <template #activator="{ props: menuProps }">
                         <v-btn
-                          data-testid="activity-action-btn"
+                          data-testid="about-team-member-action-btn"
                           density="compact"
                           variant="text"
                           icon="mdi-dots-vertical"
@@ -142,17 +163,13 @@
                     </v-menu>
                   </div>
 
+                  <div class="text-body-2 mt-2">
+                    {{ element.role }}
+                  </div>
+
                   <div class="d-flex align-center justify-space-between ga-2 mt-3">
-                    <div class="d-flex align-center ga-2">
-                      <v-icon :icon="element.icon?.name || 'mdi-help-circle-outline'" />
-                      <div>
-                        <div class="text-body-2">
-                          {{ element.icon?.label || '-' }}
-                        </div>
-                        <div class="text-caption text-medium-emphasis">
-                          {{ element.icon?.name || '-' }}
-                        </div>
-                      </div>
+                    <div class="text-caption text-medium-emphasis">
+                      Sort: {{ element.display_order ?? '-' }}
                     </div>
 
                     <v-chip
@@ -162,10 +179,6 @@
                     >
                       {{ element.is_published ? 'Yes' : 'No' }}
                     </v-chip>
-                  </div>
-
-                  <div class="text-caption text-medium-emphasis mt-2">
-                    Sort: {{ element.sort_order ?? '-' }}
                   </div>
                 </v-card>
               </template>
@@ -185,14 +198,11 @@
                 <th style="width: 120px">
                   Actions
                 </th>
-                <th style="width: 220px">
-                  Icon
+                <th style="min-width: 240px">
+                  Member
                 </th>
                 <th style="min-width: 220px">
-                  Title
-                </th>
-                <th style="min-width: 340px">
-                  Subtitle
+                  Role
                 </th>
                 <th style="width: 120px">
                   Published
@@ -206,7 +216,7 @@
             <tbody v-if="resultLoading">
               <tr>
                 <td
-                  colspan="7"
+                  colspan="6"
                   align="center"
                 >
                   Loading...
@@ -217,7 +227,7 @@
             <tbody v-else-if="items.length === 0">
               <tr>
                 <td
-                  colspan="7"
+                  colspan="6"
                   align="center"
                 >
                   No Data
@@ -244,7 +254,7 @@
                     <v-menu v-if="permission?.update || permission?.delete">
                       <template #activator="{ props: menuProps }">
                         <v-btn
-                          data-testid="activity-action-btn"
+                          data-testid="about-team-member-action-btn"
                           density="compact"
                           :loading="resultLoading"
                           :disabled="resultLoading"
@@ -253,6 +263,7 @@
                           Action
                         </v-btn>
                       </template>
+
                       <v-list>
                         <v-list-item
                           v-if="permission?.update"
@@ -273,29 +284,16 @@
                   </td>
 
                   <td>
-                    <div class="d-flex align-center ga-2">
-                      <v-icon :icon="element.icon?.name || 'mdi-help-circle-outline'" />
-                      <div>
-                        <div class="font-weight-medium">
-                          {{ element.icon?.label || '-' }}
-                        </div>
-                        <div class="text-caption text-medium-emphasis">
-                          {{ element.icon?.name || '-' }}
-                        </div>
-                      </div>
+                    <div class="font-weight-medium">
+                      {{ element.member?.name || `Member ID: ${element.member_id}` }}
+                    </div>
+                    <div class="text-caption text-medium-emphasis">
+                      {{ element.member?.username || '-' }}
                     </div>
                   </td>
 
                   <td>
-                    <div style="white-space: pre-line">
-                      {{ element.title }}
-                    </div>
-                  </td>
-
-                  <td
-                    style="max-width: 520px; white-space: pre-line"
-                  >
-                    {{ element.subtitle }}
+                    {{ element.role }}
                   </td>
 
                   <td>
@@ -309,7 +307,7 @@
                   </td>
 
                   <td>
-                    {{ element.sort_order ?? '-' }}
+                    {{ element.display_order ?? '-' }}
                   </td>
                 </tr>
               </template>
@@ -321,16 +319,16 @@
 
     <v-dialog
       v-model="statusDialogForm"
-      width="720"
+      :fullscreen="selectData === null"
+      :width="selectData ? 720 : undefined"
       persistent
       scrollable
     >
-      <DialogFormActivity
+      <DialogFormAboutTeamMember
         v-if="statusDialogForm"
         :select-data="selectData"
-        :icons="icons"
         @close-dialog="closeDialogForm"
-        @refresh-page="fetchActivities"
+        @refresh-page="fetchTeamMembers"
       />
     </v-dialog>
 
@@ -346,13 +344,12 @@
 <script lang="ts" setup>
 import draggable from 'vuedraggable';
 import type { IResPermission } from '@/model/auth-interface';
-import type { ILandingActivity, ILandingIcon } from '@/model/landing-activity-interface';
-import { deleteLandingActivity, listLandingActivities, sortLandingActivities } from '@/service/Setting/landingActivities';
-import { listLandingIcons } from '@/service/Setting/landingIcons';
+import type { IAboutTeamMember } from '@/model/about-team-member-interface';
+import { deleteAboutTeamMember, listAboutTeamMembers, sortAboutTeamMembers } from '@/service/Setting/aboutTeamMembers';
 import { useLoadingComponent } from '@/utils/loading';
 import { useConfirmDialog } from '@/utils/confirm-dialog';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
-import DialogFormActivity from '@/components/UI/Setting/Landing/Activities/DialogFormActivity.vue';
+import DialogFormAboutTeamMember from '@/components/UI/Setting/Landing/AboutTeamMembers/DialogFormAboutTeamMember.vue';
 import { useDisplay } from 'vuetify';
 
 const swal = inject('$swal') as typeof import('sweetalert2').default;
@@ -366,38 +363,38 @@ const { smAndDown } = useDisplay();
 const { loading, resultLoading } = useLoadingComponent();
 const { showDialog, dialogOptions, showConfirm, handleConfirm, handleCancel } = useConfirmDialog();
 
-const items = ref<ILandingActivity[]>([]);
-const icons = ref<ILandingIcon[]>([]);
+const items = ref<IAboutTeamMember[]>([]);
 
-const selectData = ref<ILandingActivity | null>(null);
+const publishedFilter = ref<'' | 'true' | 'false'>('');
+const publishedOptions = [
+  { title: 'All', value: '' },
+  { title: 'Published', value: 'true' },
+  { title: 'Unpublished', value: 'false' },
+];
+
+const selectData = ref<IAboutTeamMember | null>(null);
 const statusDialogForm = ref(false);
 
 const closeDialogForm = () => {
   statusDialogForm.value = false;
 };
 
-const openDialogForm = (data: ILandingActivity | null) => {
+const openDialogForm = (data: IAboutTeamMember | null) => {
   selectData.value = data;
   statusDialogForm.value = true;
 };
 
-const fetchIcons = () => {
-  loading.role = true;
-  listLandingIcons()
-    .then(({ data }) => {
-      icons.value = data.data ?? [];
-    })
-    .catch((err) => {
-      console.error(err);
-    })
-    .finally(() => {
-      loading.role = false;
-    });
-};
-
-const fetchActivities = () => {
+const fetchTeamMembers = () => {
   loading.data = true;
-  listLandingActivities()
+
+  const params =
+    publishedFilter.value === ''
+      ? undefined
+      : {
+          is_published: publishedFilter.value === 'true',
+        };
+
+  listAboutTeamMembers(params)
     .then(({ data }) => {
       items.value = data.data ?? [];
     })
@@ -412,10 +409,10 @@ const fetchActivities = () => {
 const submitSort = () => {
   loading.submit = true;
   const ids = items.value.map((item) => String(item.id));
-  sortLandingActivities({ ids })
+  sortAboutTeamMembers({ ids })
     .then(({ data }) => {
       swal.fire('Success', data.message || 'Sort berhasil disimpan', 'success');
-      fetchActivities();
+      fetchTeamMembers();
     })
     .catch((err) => {
       console.error(err);
@@ -427,8 +424,8 @@ const submitSort = () => {
 
 const confirmDelete = (id: number) => {
   showConfirm({
-    title: 'Hapus Activity',
-    html: 'Yakin ingin menghapus activity ini?',
+    title: 'Hapus Pengurus & Pelatih',
+    html: 'Yakin ingin menghapus data ini?',
     confirmButtonText: 'Hapus',
     cancelButtonText: 'Batal',
     confirmButtonColor: '#d32f2f',
@@ -437,10 +434,10 @@ const confirmDelete = (id: number) => {
     .then((confirmed) => {
       if (!confirmed) return;
       loading.submit = true;
-      deleteLandingActivity(id)
+      deleteAboutTeamMember(id)
         .then(({ data }) => {
-          swal.fire('Success', data.message || 'Activity berhasil dihapus', 'success');
-          fetchActivities();
+          swal.fire('Success', data.message || 'Data berhasil dihapus', 'success');
+          fetchTeamMembers();
         })
         .catch((err) => {
           console.error(err);
@@ -455,7 +452,13 @@ const confirmDelete = (id: number) => {
 };
 
 onMounted(() => {
-  fetchIcons();
-  fetchActivities();
+  fetchTeamMembers();
+});
+
+defineExpose({
+  confirmDelete,
+  fetchTeamMembers,
+  publishedFilter,
+  submitSort,
 });
 </script>

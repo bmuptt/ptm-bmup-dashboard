@@ -4,8 +4,8 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import type { AxiosResponse } from 'axios';
-import AboutTimelinesManager from '@/components/UI/Setting/Landing/AboutTimelines/AboutTimelinesManager.vue';
-import { deleteAboutTimeline, listAboutTimelines } from '@/service/Setting/aboutTimelines';
+import AboutTeamMembersManager from '@/components/UI/Setting/Landing/AboutTeamMembers/AboutTeamMembersManager.vue';
+import { listAboutTeamMembers, sortAboutTeamMembers, deleteAboutTeamMember } from '@/service/Setting/aboutTeamMembers';
 import type { IResPermission } from '@/model/auth-interface';
 
 const displayState = vi.hoisted(() => ({
@@ -25,9 +25,28 @@ vi.mock('vuetify', async () => {
   };
 });
 
-vi.mock('@/service/Setting/aboutTimelines', () => ({
-  listAboutTimelines: vi.fn(),
-  deleteAboutTimeline: vi.fn(),
+vi.mock('vuedraggable', () => ({
+  default: {
+    name: 'draggable',
+    props: ['modelValue', 'tag', 'itemKey'],
+    emits: ['update:modelValue'],
+    template: `
+      <div>
+        <slot
+          v-for="element in modelValue"
+          :key="element.id"
+          name="item"
+          :element="element"
+        />
+      </div>
+    `,
+  },
+}));
+
+vi.mock('@/service/Setting/aboutTeamMembers', () => ({
+  listAboutTeamMembers: vi.fn(),
+  sortAboutTeamMembers: vi.fn(),
+  deleteAboutTeamMember: vi.fn(),
 }));
 
 vi.mock('@/components/common/ConfirmDialog.vue', () => ({
@@ -39,10 +58,10 @@ vi.mock('@/components/common/ConfirmDialog.vue', () => ({
   },
 }));
 
-vi.mock('@/components/UI/Setting/Landing/AboutTimelines/DialogFormAboutTimeline.vue', () => ({
+vi.mock('@/components/UI/Setting/Landing/AboutTeamMembers/DialogFormAboutTeamMember.vue', () => ({
   default: {
-    name: 'DialogFormAboutTimeline',
-    template: '<div data-testid="dialog-form-about-timeline">Dialog Form About Timeline</div>',
+    name: 'DialogFormAboutTeamMember',
+    template: '<div data-testid="dialog-form-about-team-member">Dialog Form About Team Member</div>',
     props: ['selectData'],
     emits: ['close-dialog', 'refresh-page'],
   },
@@ -68,12 +87,12 @@ vi.mock('@/utils/confirm-dialog', async () => {
   };
 });
 
-describe('AboutTimelinesManager', () => {
+describe('AboutTeamMembersManager', () => {
   let wrapper: VueWrapper;
   let vuetify: ReturnType<typeof createVuetify>;
 
   const mountComponent = (permission: IResPermission) => {
-    wrapper = mount(AboutTimelinesManager, {
+    wrapper = mount(AboutTeamMembersManager, {
       props: { permission },
       global: {
         plugins: [vuetify],
@@ -122,8 +141,8 @@ describe('AboutTimelinesManager', () => {
     vi.clearAllMocks();
   });
 
-  test('fetches timelines on mount then renders empty state', async () => {
-    vi.mocked(listAboutTimelines).mockResolvedValue({
+  test('fetches team members on mount then renders empty state', async () => {
+    vi.mocked(listAboutTeamMembers).mockResolvedValue({
       data: { success: true, count: 0, data: [] },
     } as AxiosResponse);
 
@@ -139,16 +158,16 @@ describe('AboutTimelinesManager', () => {
 
     await flushPromises();
 
-    expect(listAboutTimelines).toHaveBeenCalledTimes(1);
-    expect(listAboutTimelines).toHaveBeenCalledWith(undefined);
+    expect(listAboutTeamMembers).toHaveBeenCalledTimes(1);
+    expect(listAboutTeamMembers).toHaveBeenCalledWith(undefined);
     expect(wrapper.text()).toContain('No Data');
-    expect(wrapper.find('[data-testid="add-about-timeline-btn"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="add-about-team-member-btn"]').exists()).toBe(true);
   });
 
   test('renders mobile empty state without table when smAndDown', async () => {
     if (displayState.smAndDown) displayState.smAndDown.value = true;
 
-    vi.mocked(listAboutTimelines).mockResolvedValue({
+    vi.mocked(listAboutTeamMembers).mockResolvedValue({
       data: { success: true, count: 0, data: [] },
     } as AxiosResponse);
 
@@ -168,9 +187,34 @@ describe('AboutTimelinesManager', () => {
     expect(wrapper.find('table').exists()).toBe(false);
   });
 
-  test('applies published filter when fetchTimelines called', async () => {
-    vi.mocked(listAboutTimelines).mockResolvedValue({
-      data: { success: true, count: 0, data: [] },
+  test('shows Update Sort and submits sort payload by ids', async () => {
+    vi.mocked(listAboutTeamMembers).mockResolvedValue({
+      data: {
+        success: true,
+        count: 2,
+        data: [
+          {
+            id: 11,
+            member_id: 1,
+            role: 'Coach',
+            is_published: true,
+            display_order: 1,
+            member: { id: 1, name: 'Member 1', username: 'm1' },
+          },
+          {
+            id: 12,
+            member_id: 2,
+            role: 'Staff',
+            is_published: false,
+            display_order: 2,
+            member: { id: 2, name: 'Member 2', username: 'm2' },
+          },
+        ],
+      },
+    } as AxiosResponse);
+
+    vi.mocked(sortAboutTeamMembers).mockResolvedValue({
+      data: { success: true, message: 'ok' },
     } as AxiosResponse);
 
     mountComponent({
@@ -185,18 +229,20 @@ describe('AboutTimelinesManager', () => {
 
     await flushPromises();
 
-    (wrapper.vm as unknown as { publishedFilter: string }).publishedFilter = 'true';
-    await (wrapper.vm as unknown as { fetchTimelines: () => void }).fetchTimelines();
+    const updateSortBtn = wrapper.find('[data-testid="update-sort-about-team-member-btn"]');
+    expect(updateSortBtn.exists()).toBe(true);
+    await updateSortBtn.trigger('click');
+    await flushPromises();
 
-    expect(listAboutTimelines).toHaveBeenLastCalledWith({ is_published: true });
+    expect(sortAboutTeamMembers).toHaveBeenCalledWith({ ids: ['11', '12'] });
   });
 
   test('confirm delete calls delete service when confirmed', async () => {
-    vi.mocked(listAboutTimelines).mockResolvedValue({
+    vi.mocked(listAboutTeamMembers).mockResolvedValue({
       data: { success: true, count: 0, data: [] },
     } as AxiosResponse);
 
-    vi.mocked(deleteAboutTimeline).mockResolvedValue({
+    vi.mocked(deleteAboutTeamMember).mockResolvedValue({
       data: { success: true, message: 'deleted' },
     } as AxiosResponse);
 
@@ -214,9 +260,9 @@ describe('AboutTimelinesManager', () => {
 
     const vm = wrapper.vm as unknown as { confirmDelete: (id: number) => void };
     vm.confirmDelete(99);
-
     await flushPromises();
 
-    expect(deleteAboutTimeline).toHaveBeenCalledWith(99);
+    expect(deleteAboutTeamMember).toHaveBeenCalledWith(99);
   });
 });
+

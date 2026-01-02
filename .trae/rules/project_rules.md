@@ -28,6 +28,8 @@ ATURAN WAJIB (dibaca sebelum mulai coding)
   - Di template/HTML, gunakan resultLoading untuk state loading/disabled, bukan loading.data/loading.submit langsung.
     - Contoh pattern: :loading="resultLoading", :disabled="resultLoading"
   - Jika butuh loading spesifik per aksi, tetap set loading.xxx di script, tapi binding UI pakai resultLoading.
+  - Jika butuh flag loading baru (mis. loading.member/loading.import), tambahkan key-nya di dataLoading pada util yang sesuai:
+    - useLoading() / useLoadingComponent() / useLoadingForm() di src/utils/loading.ts
 
 5) Console & Logging (Wajib)
 - Hindari console.log (cepat penuh log docker).
@@ -62,3 +64,5 @@ ATURAN WAJIB (dibaca sebelum mulai coding)
 - Untuk table Vuetify (v-data-table / v-data-table-server), wajib perhatikan tampilan mobile.
 - Pattern wajib (lihat halaman Member/User): :mobile="smAndDown" dan :hide-default-header="smAndDown".
 - Jika memakai v-table, wajib buat alternatif tampilan mobile (smAndDown) yang setara/rapi.
+- Untuk halaman list management di Setting (mis. Activities / About Team Members / About Timelines), mobile disarankan pakai card list 1 kolom (stack) supaya rapi.
+- Hindari tombol "Action" lebar di mobile; gunakan v-menu activator icon (mdi-dots-vertical) dengan :loading/:disabled pakai resultLoading.

@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { mount, type VueWrapper } from '@vue/test-utils';
+import { mount, flushPromises, type VueWrapper } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
@@ -9,20 +9,37 @@ import { listLandingActivities, sortLandingActivities, deleteLandingActivity } f
 import { listLandingIcons } from '@/service/Setting/landingIcons';
 import type { IResPermission } from '@/model/auth-interface';
 
+const displayState = vi.hoisted(() => ({
+  smAndDown: null as unknown as { value: boolean } | null,
+}));
+
+vi.mock('vuetify', async () => {
+  const actual = await vi.importActual<typeof import('vuetify')>('vuetify');
+  const vue = await vi.importActual<typeof import('vue')>('vue');
+  if (!displayState.smAndDown) displayState.smAndDown = vue.ref(false);
+
+  return {
+    ...actual,
+    useDisplay: () => ({
+      smAndDown: displayState.smAndDown!,
+    }),
+  };
+});
+
 vi.mock('vuedraggable', () => ({
   default: {
     name: 'draggable',
     props: ['modelValue', 'tag', 'itemKey'],
     emits: ['update:modelValue'],
     template: `
-      <tbody>
+      <div>
         <slot
           v-for="element in modelValue"
           :key="element.id"
           name="item"
           :element="element"
         />
-      </tbody>
+      </div>
     `,
   },
 }));
@@ -94,10 +111,34 @@ describe('ActivitiesManager', () => {
   };
 
   beforeEach(() => {
+    if (displayState.smAndDown) displayState.smAndDown.value = false;
     vuetify = createVuetify({
       components,
       directives,
     });
+
+    (globalThis as unknown as { visualViewport?: unknown }).visualViewport = {
+      width: 1024,
+      height: 768,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    } as unknown as VisualViewport;
+
+    if (!window.matchMedia) {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: vi.fn().mockImplementation((query: string) => ({
+          matches: false,
+          media: query,
+          onchange: null,
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          dispatchEvent: vi.fn(),
+        })),
+      });
+    }
   });
 
   afterEach(() => {
@@ -124,13 +165,39 @@ describe('ActivitiesManager', () => {
       approval_3: false,
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await wrapper.vm.$nextTick();
+    await flushPromises();
 
     expect(listLandingIcons).toHaveBeenCalledTimes(1);
     expect(listLandingActivities).toHaveBeenCalledTimes(1);
     expect(wrapper.text()).toContain('No Data');
     expect(wrapper.find('[data-testid="add-activity-btn"]').exists()).toBe(true);
+  });
+
+  test('renders mobile empty state without table when smAndDown', async () => {
+    if (displayState.smAndDown) displayState.smAndDown.value = true;
+
+    vi.mocked(listLandingIcons).mockResolvedValue({
+      data: { success: true, count: 0, data: [] },
+    } as AxiosResponse);
+
+    vi.mocked(listLandingActivities).mockResolvedValue({
+      data: { success: true, count: 0, data: [] },
+    } as AxiosResponse);
+
+    mountComponent({
+      access: true,
+      create: true,
+      update: true,
+      delete: true,
+      approval: false,
+      approval_2: false,
+      approval_3: false,
+    });
+
+    await flushPromises();
+
+    expect(wrapper.text()).toContain('No Data');
+    expect(wrapper.find('table').exists()).toBe(false);
   });
 
   test('shows Update Sort and submits sort payload by ids', async () => {
@@ -183,12 +250,13 @@ describe('ActivitiesManager', () => {
       approval_3: false,
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await wrapper.vm.$nextTick();
+    await flushPromises();
 
     const updateSortBtn = wrapper.find('[data-testid="update-sort-activity-btn"]');
     expect(updateSortBtn.exists()).toBe(true);
     await updateSortBtn.trigger('click');
+
+    await flushPromises();
 
     expect(sortLandingActivities).toHaveBeenCalledWith({ ids: ['11', '12'] });
   });
@@ -216,16 +284,13 @@ describe('ActivitiesManager', () => {
       approval_3: false,
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await wrapper.vm.$nextTick();
+    await flushPromises();
 
     const vm = wrapper.vm as unknown as { confirmDelete: (id: number) => void };
     vm.confirmDelete(99);
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    await wrapper.vm.$nextTick();
+    await flushPromises();
 
     expect(deleteLandingActivity).toHaveBeenCalledWith(99);
   });
 });
-

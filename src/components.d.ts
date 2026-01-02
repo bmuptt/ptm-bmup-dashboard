@@ -8,12 +8,14 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AboutSectionForm: typeof import('./components/UI/Setting/Landing/AboutSectionForm.vue')['default']
+    AboutTeamMembersManager: typeof import('./components/UI/Setting/Landing/AboutTeamMembers/AboutTeamMembersManager.vue')['default']
     AboutTimelinesManager: typeof import('./components/UI/Setting/Landing/AboutTimelines/AboutTimelinesManager.vue')['default']
     ActivitiesManager: typeof import('./components/UI/Setting/Landing/Activities/ActivitiesManager.vue')['default']
     ConfirmDialog: typeof import('./components/common/ConfirmDialog.vue')['default']
     DatePicker: typeof import('./components/common/DatePicker.vue')['default']
     DialogAddMenu: typeof import('./components/UI/AppManagement/Menu/DialogAddMenu.vue')['default']
     DialogCreateUser: typeof import('./components/UI/Setting/Member/DialogCreateUser.vue')['default']
+    DialogFormAboutTeamMember: typeof import('./components/UI/Setting/Landing/AboutTeamMembers/DialogFormAboutTeamMember.vue')['default']
     DialogFormAboutTimeline: typeof import('./components/UI/Setting/Landing/AboutTimelines/DialogFormAboutTimeline.vue')['default']
     DialogFormActivity: typeof import('./components/UI/Setting/Landing/Activities/DialogFormActivity.vue')['default']
     DialogFormHeader: typeof import('./components/UI/AppManagement/Menu/DialogFormHeader.vue')['default']
@@ -30,6 +32,7 @@ declare module 'vue' {
     HistoryList: typeof import('./components/UI/Finance/CashBalance/HistoryList.vue')['default']
     HomeSectionForm: typeof import('./components/UI/Setting/Landing/HomeSectionForm.vue')['default']
     ImportDuesDialog: typeof import('./components/UI/Finance/Dues/ImportDuesDialog.vue')['default']
+    MemberSelectionDialog: typeof import('./components/UI/Setting/Landing/AboutTeamMembers/MemberSelectionDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TinyMCE: typeof import('./components/common/TinyMCE.vue')['default']

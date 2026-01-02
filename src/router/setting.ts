@@ -48,5 +48,13 @@ export const settingRoutes = {
       },
       component: () => import('@/pages/Setting/AboutTimelines/Index.vue'),
     },
+    {
+      path: 'about-team-members',
+      name: 'aboutteammembers',
+      meta: {
+        label: 'Pengurus & Pelatih',
+      },
+      component: () => import('@/pages/Setting/AboutTeamMembers/Index.vue'),
+    },
   ],
 };

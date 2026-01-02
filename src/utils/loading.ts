@@ -59,7 +59,8 @@ export function useLoadingComponent() {
 export function useLoadingForm() {
   const dataLoading = {
     data: false,
-    submit: false
+    submit: false,
+    member: false,
   };
 
   const loading = reactive({
