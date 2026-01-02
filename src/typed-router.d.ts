@@ -33,5 +33,6 @@ declare module 'vue-router/auto-routes' {
     '/Setting/Core/Index': RouteRecordInfo<'/Setting/Core/Index', '/Setting/Core/Index', Record<never, never>, Record<never, never>>,
     '/Setting/Landing/Index': RouteRecordInfo<'/Setting/Landing/Index', '/Setting/Landing/Index', Record<never, never>, Record<never, never>>,
     '/Setting/Member/Index': RouteRecordInfo<'/Setting/Member/Index', '/Setting/Member/Index', Record<never, never>, Record<never, never>>,
+    '/Setting/TrainingSchedules/Index': RouteRecordInfo<'/Setting/TrainingSchedules/Index', '/Setting/TrainingSchedules/Index', Record<never, never>, Record<never, never>>,
   }
 }

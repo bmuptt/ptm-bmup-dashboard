@@ -56,5 +56,13 @@ export const settingRoutes = {
       },
       component: () => import('@/pages/Setting/AboutTeamMembers/Index.vue'),
     },
+    {
+      path: 'training-schedules',
+      name: 'trainingschedules',
+      meta: {
+        label: 'Jadwal Latihan',
+      },
+      component: () => import('@/pages/Setting/TrainingSchedules/Index.vue'),
+    },
   ],
 };

@@ -23,6 +23,7 @@ declare module 'vue' {
     DialogFormMenu: typeof import('./components/UI/AppManagement/Menu/DialogFormMenu.vue')['default']
     DialogFormRole: typeof import('./components/UI/AppManagement/Role/DialogFormRole.vue')['default']
     DialogFormRoleMenu: typeof import('./components/UI/AppManagement/RoleMenu/DialogFormRoleMenu.vue')['default']
+    DialogFormTrainingSchedule: typeof import('./components/UI/Setting/TrainingSchedules/DialogFormTrainingSchedule.vue')['default']
     DialogFormUser: typeof import('./components/UI/AppManagement/User/DialogFormUser.vue')['default']
     DialogImportMember: typeof import('./components/UI/Setting/Member/DialogImportMember.vue')['default']
     DialogRoleSelection: typeof import('./components/UI/Setting/Member/DialogRoleSelection.vue')['default']
@@ -38,6 +39,7 @@ declare module 'vue' {
     TinyMCE: typeof import('./components/common/TinyMCE.vue')['default']
     TipTap: typeof import('./components/common/TipTap.vue')['default']
     TipTapSimple: typeof import('./components/common/TipTapSimple.vue')['default']
+    TrainingSchedulesManager: typeof import('./components/UI/Setting/TrainingSchedules/TrainingSchedulesManager.vue')['default']
     UploadProofDialog: typeof import('./components/UI/Finance/Dues/UploadProofDialog.vue')['default']
   }
 }
