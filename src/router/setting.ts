@@ -64,5 +64,13 @@ export const settingRoutes = {
       },
       component: () => import('@/pages/Setting/TrainingSchedules/Index.vue'),
     },
+    {
+      path: 'gallery-items',
+      name: 'galleryitems',
+      meta: {
+        label: 'Galeri',
+      },
+      component: () => import('@/pages/Setting/GalleryItems/Index.vue'),
+    },
   ],
 };
